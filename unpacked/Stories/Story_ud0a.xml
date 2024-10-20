@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<idPkg:Story xmlns:idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging" DOMVersion="17.0">
+	<Story Self="ud0a" UserText="true" IsEndnoteStory="false" AppliedTOCStyle="n" TrackChanges="false" StoryTitle="$ID/" AppliedNamedGrid="n">
+		<StoryPreference OpticalMarginAlignment="false" OpticalMarginSize="12" FrameType="TextFrameType" StoryOrientation="Horizontal" StoryDirection="LeftToRightDirection" />
+		<InCopyExportOption IncludeGraphicProxies="true" IncludeAllResources="false" />
+		<ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Normale (Web)" SpaceBefore="0.1" SpaceAfter="0.1" Justification="LeftJustified">
+			<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]" FillColor="Color/Paper" FontStyle="Italic">
+				<Properties>
+					<AppliedFont type="string">HelveticaNeue</AppliedFont>
+				</Properties>
+				<Content>Archiviato il 2020, l’AdSP del Mare di Sardegna volge lo sguardo al prossimo triennio per portare a termine i progetti avviati e pianificare la graduale rivoluzione dei porti sardi in chiave infrastrutturale, funzi</Content>
+			</CharacterStyleRange>
+			<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/Enfasi (corsivo)" FillColor="Color/Paper" CharacterDirection="LeftToRightDirection">
+				<Properties>
+					<AppliedFont type="string">HelveticaNeue</AppliedFont>
+				</Properties>
+				<Content>ndersi in una dimensione sistemica, del tutto inedita e complessa, quale quella introdotta dal D.lgs 169/2016</Content>
+			</CharacterStyleRange>
+			<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]" FillColor="Color/Paper" FontStyle="Italic">
+				<Properties>
+					<AppliedFont type="string">HelveticaNeue</AppliedFont>
+				</Properties>
+				<Content>” che ha unito, sotto un’unica cabina di regia, le due ex Autorità Portuali. Una fase, quella tra il 2018 ed il 2020, nel corso della quale l’AdSP del Mare di Sarde merci, – 40% sui passeggeri) alla crisi generata dal Covid. Vivacità che non è venuta meno neanche di fronte al lockdown nazionale, nel corso del quale, oltre all’atiena operatività dei servizi e la salvaguardia di tutti i posti di lavoro nel porto di Olbia – Isola Bianca dopgno, quest’ultimo, che, nella programmazione del prossimo triennio, viene eletto come “</Content>
+			</CharacterStyleRange>
+			<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/Enfasi (corsivo)" FillColor="Color/Paper" CharacterDirection="LeftToRightDirection">
+				<Properties>
+					<AppliedFont type="string">HelveticaNeue</AppliedFont>
+				</Properties>
+				<Content>la priori</Content>
+			</CharacterStyleRange>
+			<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]" FillColor="Color/Paper" FontStyle="Italic">
+				<Properties>
+					<AppliedFont type="string">HelveticaNeue</AppliedFont>
+				</Properties>
+				<Content>e dell’utilizzo di carburanti a basse emissioni solforose.  Non ultimo, favorire l’iniziativa privata, in particolare quella legata al comparto nautico e dei servizi, con rideterminazione, riqualificazione ed infrastrutturazione delle aree dedicate alla cantieristica, alla diportistica e agli spazi commerciali. Rivoluzionarie le proposte del POT, che veIl stress test sugli scali di competenza, ci conduce a definire i ruoli di ciascuna realtà in base alle reali vocazioni. E’ un piano che trasformerà l’AdSP da mero gestore di infrastrutture nelle quali si ricevono e rilasciano flussi di traffico, a promotore di una più ampia ed articolata dimensione economico-sociale, che interessa la logistica, i servizi, la trasformazione industriale, l’energia, la sostenibilità, l’innovazione governo, controllo e del cluster portuale, si prepara a </Content>
+				<Br />
+			</CharacterStyleRange>
+		</ParagraphStyleRange>
+		<ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/$ID/[No paragraph style]" Justification="LeftJustified">
+			<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]" FillColor="Color/Paper" FontStyle="Italic" PointSize="6">
+				<Properties>
+					<AppliedFont type="string">HelveticaNeue</AppliedFont>
+				</Properties>
+			</CharacterStyleRange>
+		</ParagraphStyleRange>
+	</Story>
+</idPkg:Story>
