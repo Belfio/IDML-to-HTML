@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<idPkg:Story xmlns:idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging" DOMVersion="17.0">
+	<Story Self="u8b0" UserText="true" IsEndnoteStory="false" AppliedTOCStyle="n" TrackChanges="false" StoryTitle="$ID/" AppliedNamedGrid="n">
+		<StoryPreference OpticalMarginAlignment="false" OpticalMarginSize="12" FrameType="TextFrameType" StoryOrientation="Horizontal" StoryDirection="LeftToRightDirection" />
+		<InCopyExportOption IncludeGraphicProxies="true" IncludeAllResources="false" />
+		<ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/$ID/[No paragraph style]">
+			<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]" FontStyle="Roman" PointSize="8">
+				<Properties>
+					<AppliedFont type="string">Helvetica</AppliedFont>
+				</Properties>
+				<Content>Pubblicazione mensile - € 4,00 - Arretrati € 8,00</Content>
+				<Br />
+				<Content>Autorizzazione del Tribunale di Cagliari n. 14 del 2 aprile 1994</Content>
+				<Br />
+				<Content>Tutti i diritti riservati</Content>
+				<Br />
+				<Content>Vietata la riproduzione anche parziale</Content>
+				<Br />
+				<Content>Finito di stampare nel mese di dicembre 2021</Content>
+				<Br />
+				<Content>www.makoedizioni.it</Content>
+			</CharacterStyleRange>
+		</ParagraphStyleRange>
+	</Story>
+</idPkg:Story>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<idPkg:Story xmlns:idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging" DOMVersion="17.0">
+	<Story Self="u7bb" UserText="true" IsEndnoteStory="false" AppliedTOCStyle="n" TrackChanges="false" StoryTitle="$ID/" AppliedNamedGrid="n">
+		<StoryPreference OpticalMarginAlignment="false" OpticalMarginSize="12" FrameType="TextFrameType" StoryOrientation="Horizontal" StoryDirection="LeftToRightDirection" />
+		<InCopyExportOption IncludeGraphicProxies="true" IncludeAllResources="false" />
+		<ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/$ID/[No paragraph style]" HyphenationZone="46.08" RuleAboveLineWeight="1.28" RuleBelowLineWeight="1.28" SplitColumnInsideGutter="7.68" ParagraphBorderTopLeftCornerRadius="15.36" ParagraphBorderTopRightCornerRadius="15.36" ParagraphBorderBottomLeftCornerRadius="15.36" ParagraphBorderBottomRightCornerRadius="15.36" ParagraphShadingTopLeftCornerRadius="15.36" ParagraphShadingTopRightCornerRadius="15.36" ParagraphShadingBottomLeftCornerRadius="15.36" ParagraphShadingBottomRightCornerRadius="15.36" ParagraphBorderTopLineWeight="1.28" ParagraphBorderBottomLineWeight="1.28" ParagraphBorderLeftLineWeight="1.28" ParagraphBorderRightLineWeight="1.28">
+			<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]" FillColor="Color/C=17 M=0 Y=0 K=17" FontStyle="Heavy" PointSize="153.6" StrokeWeight="1.28" FillTint="33" MiterLimit="5.12" RubyFontSize="-1.28" KentenFontSize="-1.28">
+				<Properties>
+					<Leading type="unit">46.08</Leading>
+					<AppliedFont type="string">HelveticaNeue</AppliedFont>
+				</Properties>
+				<Content>PALLAROVENT</Content>
+			</CharacterStyleRange>
+		</ParagraphStyleRange>
+	</Story>
+</idPkg:Story>

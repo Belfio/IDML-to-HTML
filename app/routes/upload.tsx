@@ -1,69 +1,42 @@
-import { ActionFunction, json } from "@remix-run/node";
+import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
-import { parseIDMLToJSON } from "~/services/idmlParser";
-import { extractIDML } from "~/services/idmlParser";
-import path from "path";
+import idmlUrl from "~/assets/example.idml";
+import processIdml from "~/lib/processIdml";
 import fs from "fs";
-import { Readable } from "stream";
+import path from "path";
 
 // Action to handle the file upload
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const file = formData.get("idmlFile");
+// export const action: ActionFunction = async ({ request }) => {
+//   const formData = await request.formData();
+//   const file = formData.get("idmlFile");
 
-  if (!file || typeof file === "string") {
-    return json({ error: "No file uploaded" }, { status: 400 });
-  }
+//   if (!file || typeof file === "string") {
+//     return json({ error: "No file uploaded" }, { status: 400 });
+//   }
 
-  if (
-    file.type !== "application/vnd.adobe.idml+zip" &&
-    !file.name.endsWith(".idml")
-  ) {
-    return json(
-      { error: "Invalid file type. Please upload an IDML file." },
-      { status: 400 }
-    );
-  }
+//   if (
+//     file.type !== "application/vnd.adobe.idml+zip" &&
+//     !file.name.endsWith(".idml")
+//   ) {
+//     return json(
+//       { error: "Invalid file type. Please upload an IDML file." },
+//       { status: 400 }
+//     );
+//   }
 
-  try {
-    const fileStream: ReadableStream<Uint8Array> = file.stream();
+//   try {
+//     // Load the IDML file from assets
+//     const idmlFilePath = path.join(process.cwd(), "app/assets/example.idml");
+//     const idmlFileBuffer = fs.readFileSync(idmlFilePath);
 
-    const tempFilePath = path.join("/tmp", "uploads", "exemple.idml");
+//     // Process the IDML file buffer
+//     await processIdml(idmlFileBuffer);
 
-    // Save the uploaded file temporarily
-    const writeStream = fs.createWriteStream(tempFilePath);
-    const nodeReadable = Readable.from(
-      fileStream as any
-    ) as NodeJS.ReadableStream;
-
-    nodeReadable
-      .pipe(writeStream)
-      .on("finish", () => {
-        console.log("File saved");
-      })
-      .on("error", (error) => {
-        console.error("Error saving file", error);
-      });
-
-    // Extract the IDML file
-    console.log("Extracting IDML file", tempFilePath);
-    const targetDir = await extractIDML(tempFilePath);
-
-    // Optionally, delete the temporary file after extraction
-    console.log("Deleting temporary file", tempFilePath);
-
-    await fs.promises.unlink(tempFilePath);
-
-    console.log("Parsing IDML file", targetDir);
-    const idmlJSON = await parseIDMLToJSON(fileStream);
-
-    // TODO: Handle the JSON data as needed (e.g., save to database, further processing)
-
-    return json({ success: true, data: idmlJSON });
-  } catch (error: any) {
-    return json({ error: error.message }, { status: 500 });
-  }
-};
+//     return json({ success: true });
+//   } catch (error) {
+//     return json({ error: error.message }, { status: 500 });
+//   }
+// };
 
 // Component for the upload form
 export default function Upload() {
@@ -101,3 +74,13 @@ export default function Upload() {
     </div>
   );
 }
+
+export const loader: LoaderFunction = async () => {
+  // show what type is idmlUrl
+  console.log("idmlUrl", typeof idmlUrl);
+  console.log("idmlUrl", idmlUrl);
+  const idmlFilePath = path.join(process.cwd(), "app/assets/example.idml");
+
+  await processIdml(idmlFilePath);
+  return json({ idmlUrl });
+};

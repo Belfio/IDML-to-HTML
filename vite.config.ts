@@ -9,6 +9,8 @@ declare module "@remix-run/node" {
 }
 
 export default defineConfig({
+  assetsInclude: ["**/*.idml"],
+
   plugins: [
     remix({
       future: {
