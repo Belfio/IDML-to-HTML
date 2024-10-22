@@ -77,9 +77,8 @@ export default function Upload() {
 
 export const loader: LoaderFunction = async () => {
   // show what type is idmlUrl
-  console.log("idmlUrl", typeof idmlUrl);
   console.log("idmlUrl", idmlUrl);
-  const idmlFilePath = path.join(process.cwd(), "app/assets/example.idml");
+  const idmlFilePath = path.join(process.cwd(), idmlUrl);
 
   await processIdml(idmlFilePath);
   return json({ idmlUrl });
