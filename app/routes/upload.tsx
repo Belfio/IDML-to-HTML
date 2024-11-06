@@ -2,7 +2,6 @@ import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
 import idmlUrl from "~/assets/example.idml";
 import processIdml from "~/lib/processIdml";
-import fs from "fs";
 import path from "path";
 
 // Action to handle the file upload
