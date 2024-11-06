@@ -1,257 +1,583 @@
 import * as fs from "fs";
 import * as xml2js from "xml2js";
+import { parseStoryToHTML } from "./storiesParser";
+import path from "path";
+import idmlUrl from "~/assets/example.idml";
 
-// Types for parsed objects
-interface Spread {
-  page: Page[];
+// Type definitions for XML structure
+interface SpreadXML {
+  "idPkg:Spread": {
+    Spread: SpreadElement[];
+  };
 }
 
-interface Page {
-  id: string;
-  width: number;
-  height: number;
-  margin: MarginPreference;
-  frames: Frame[];
+interface SpreadElement {
+  $: SpreadAttributes;
+  FlattenerPreference?: [
+    {
+      $: FlattenerPreference;
+      Properties: [
+        {
+          RasterVectorBalance: [{ $: { type: string }; _: string }];
+        }
+      ];
+    }
+  ];
+  Page?: PageElement[];
+  Rectangle?: RectangleElement[];
+  TextFrame?: TextFrameElement[];
+  GraphicLine?: GraphicLineElement[];
+  Group?: GroupElement[];
+  Button?: ButtonElement[];
+  AnimationSetting?: AnimationElement[];
+  MultiStateObject?: MultiStateElement[];
+  Polygon?: PolygonElement[];
+}
+
+interface PageElement {
+  $: PageAttributes;
+  Properties?: [
+    {
+      PageColor: [{ $: { type: string }; _: string }];
+      Descriptor: [
+        {
+          ListItem: Array<{ $: { type: string }; _: string }>;
+        }
+      ];
+    }
+  ];
+  MarginPreference?: [
+    {
+      $: MarginPreference;
+    }
+  ];
+  GridDataInformation?: [
+    {
+      $: GridDataInformation;
+      Properties: [
+        {
+          AppliedFont: [{ $: { type: string }; _: string }];
+        }
+      ];
+    }
+  ];
+  Rectangle?: RectangleElement[];
+  TextFrame?: TextFrameElement[];
+  GraphicLine?: GraphicLineElement[];
+  // ... other possible page children
+}
+
+interface RectangleElement {
+  $: RectangleAttributes;
+  Image?: ImageElement[];
+}
+
+interface TextFrameElement {
+  $: TextFrameAttributes;
+}
+
+interface GraphicLineElement {
+  $: GraphicLineAttributes;
+}
+
+interface GroupElement {
+  $: GroupAttributes;
+  Rectangle?: RectangleElement[];
+  TextFrame?: TextFrameElement[];
+  GraphicLine?: GraphicLineElement[];
+}
+
+interface ButtonElement {
+  $: ButtonAttributes;
+}
+
+interface AnimationElement {
+  $: AnimationSettingAttributes;
+}
+
+interface MultiStateElement {
+  $: MultiStateObjectAttributes;
+}
+
+interface ImageElement {
+  $: {
+    ItemTransform: string;
+  };
+  Link?: [
+    {
+      $: {
+        LinkResourceURI: string;
+      };
+    }
+  ];
+}
+
+// Type definitions based on IDML specification
+interface SpreadAttributes {
+  Self: string;
+  PageTransitionType: string;
+  PageTransitionDirection: string;
+  PageTransitionDuration: string;
+  ShowMasterItems: boolean;
+  PageCount: number;
+  BindingLocation: string;
+  AllowPageShuffle: boolean;
+  ItemTransform: string;
+  FlattenerOverride: string;
+}
+
+interface PageAttributes {
+  Self: string;
+  TabOrder: string;
+  AppliedMaster: string;
+  MasterPageTransform: string;
+  Name: string;
+  GeometricBounds: string;
+  ItemTransform: string;
+}
+
+interface GuideAttributes {
+  Self: string;
+  Orientation: "Vertical" | "Horizontal";
+  Location: string;
+  FitToPage: boolean;
+  ViewThreshold: number;
+  Locked: boolean;
+  ItemLayer: string;
 }
 
 interface MarginPreference {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-  columnCount: number;
-  columnGutter: number;
+  ColumnCount: number;
+  ColumnGutter: number;
+  Top: number;
+  Bottom: number;
+  Left: number;
+  Right: number;
+  ColumnDirection: string;
+  ColumnsPositions: string;
 }
 
-interface Frame {
-  type: "text" | "graphic";
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  content?: string;
-  imageSrc?: string;
+interface TextFrameAttributes {
+  Self: string;
+  ParentStory: string;
+  ContentType: string;
+  ItemTransform: string;
 }
 
-// Main function to parse XML and generate HTML and CSS
-export default async function parseSpreadXML(
-  filePath: string
-): Promise<{ html: string; css: string }> {
-  const xmlData = fs.readFileSync(filePath, "utf-8");
-  const spreadData = await xml2js.parseStringPromise(xmlData);
-
-  // Parse spread and page information
-  console.log("working");
-  const spreadNode = spreadData["idPkg:Spread"].Spread[0];
-
-  const { html, css } = generateHtmlAndCssFromSpread(spreadNode);
-  // const spread = parseSpread(spreadData);
-  // const { html, css } = generateHTMLAndCSS(spread);
-
-  return { html, css };
+interface RectangleAttributes {
+  Self: string;
+  ContentType: string;
+  StoryTitle: string;
+  Visible: boolean;
+  ItemTransform: string;
+  GradientFillStart?: string;
+  GradientFillLength?: string;
+  GradientFillAngle?: string;
+  ItemLayer: string;
+  Locked: boolean;
+  LocalDisplaySetting: string;
+  AppliedObjectStyle: string;
 }
 
-// Parse Spread from XML structure
-function parseSpread(data: any): Spread {
-  // Access the Spread array within idPkg:Spread
-  const spreadNode = data["idPkg:Spread"].Spread[0];
-
-  const spread: Spread = { pages: [] };
-
-  // Check for Page nodes within Spread (if they exist)
-  console.log(spreadNode);
-  if (spreadNode.Page) {
-    spreadNode.Page.forEach((pageData: any) => {
-      const page = parsePage(pageData);
-      spread.pages.push(page);
-    });
-  }
-
-  return spread;
+interface GraphicLineAttributes {
+  Self: string;
+  ContentType: string;
+  StrokeColor: string;
+  StrokeWeight: string;
+  LeftLineEnd?: string;
+  ItemTransform: string;
+  ItemLayer: string;
 }
 
-// Parse Page from XML structure
-function parsePage(pageData: any): Page {
-  return {
-    id: pageData.Self,
-    transitionType: pageData.PageTransitionType,
-    transitionDirection: pageData.PageTransitionDirection,
-    transitionDuration: pageData.PageTransitionDuration,
-    pageCount: parseInt(pageData.PageCount, 10),
-    bindingLocation: parseInt(pageData.BindingLocation, 10),
-    allowPageShuffle: pageData.AllowPageShuffle === "true",
+interface GroupAttributes {
+  Self: string;
+  ItemTransform: string;
+  Visible: boolean;
+  Locked: boolean;
+}
+
+interface ButtonAttributes {
+  Self: string;
+  ItemTransform: string;
+  Visible: boolean;
+  Enabled: boolean;
+}
+
+interface AnimationSettingAttributes {
+  Self: string;
+  Duration: string;
+  MotionPath: string;
+}
+
+interface MultiStateObjectAttributes {
+  Self: string;
+  InitialState: string;
+  ItemTransform: string;
+}
+
+// Add new interfaces for missing elements
+interface FlattenerPreference {
+  LineArtAndTextResolution: string;
+  GradientAndMeshResolution: string;
+  ClipComplexRegions: boolean;
+  ConvertAllStrokesToOutlines: boolean;
+  ConvertAllTextToOutlines: boolean;
+  RasterVectorBalance: number;
+}
+
+interface PageProperties {
+  PageColor: string;
+  Descriptor: {
+    ListItem: Array<string | number | boolean>;
   };
 }
 
-// Parse Margin Preferences
-function parseMargin(data: any): MarginPreference {
-  return {
-    top: parseFloat(data.Top),
-    bottom: parseFloat(data.Bottom),
-    left: parseFloat(data.Left),
-    right: parseFloat(data.Right),
-    columnCount: parseInt(data.ColumnCount),
-    columnGutter: parseFloat(data.ColumnGutter),
-  };
+interface GridDataInformation {
+  FontStyle: string;
+  PointSize: number;
+  CharacterAki: number;
+  LineAki: number;
+  HorizontalScale: number;
+  VerticalScale: number;
+  LineAlignment: string;
+  GridAlignment: string;
+  CharacterAlignment: string;
+  AppliedFont: string;
 }
 
-// Parse Frames (text and graphic)
-function parseFrames(pageData: any): Frame[] {
-  const frames: Frame[] = [];
-
-  if (pageData.TextFrame) {
-    pageData.TextFrame.forEach((frameData: any) => {
-      const frame = parseTextFrame(frameData);
-      frames.push(frame);
-    });
-  }
-
-  if (pageData.GraphicFrame) {
-    pageData.GraphicFrame.forEach((frameData: any) => {
-      const frame = parseGraphicFrame(frameData);
-      frames.push(frame);
-    });
-  }
-
-  return frames;
+// Add Polygon interface
+interface PolygonElement {
+  $: PolygonAttributes;
 }
 
-// Parse Text Frame
-function parseTextFrame(frameData: any): Frame {
-  const bounds = frameData.$.GeometricBounds.split(" ").map(Number);
-  const width = bounds[3] - bounds[1];
-  const height = bounds[2] - bounds[0];
-  const x = bounds[1];
-  const y = bounds[0];
-  const content = frameData.Content?.[0] || "";
-
-  return { type: "text", x, y, width, height, content };
+interface PolygonAttributes {
+  Self: string;
+  ContentType: string;
+  StoryTitle: string;
+  OverriddenPageItemProps: string;
+  Visible: boolean;
+  Name: string;
+  HorizontalLayoutConstraints: string;
+  VerticalLayoutConstraints: string;
+  GradientFillStart: string;
+  GradientFillLength: string;
+  GradientFillAngle: string;
+  ItemLayer: string;
+  Locked: boolean;
+  LocalDisplaySetting: string;
+  ItemTransform: string;
 }
 
-// Parse Graphic Frame
-function parseGraphicFrame(frameData: any): Frame {
-  const bounds = frameData.$.GeometricBounds.split(" ").map(Number);
-  const width = bounds[3] - bounds[1];
-  const height = bounds[2] - bounds[0];
-  const x = bounds[1];
-  const y = bounds[0];
-  const imageSrc = frameData.Image?.[0].$.Href || "";
+// Function to parse Spread XML and convert to HTML
+export function parseSpreadToHTML(filePath: string): void {
+  const parser = new xml2js.Parser();
 
-  return { type: "graphic", x, y, width, height, imageSrc };
-}
+  fs.readFile(filePath, (err, data) => {
+    if (err) throw err;
 
-// Generate HTML and CSS based on parsed data
-function generateHTMLAndCSS(spread: Spread): { html: string; css: string } {
-  let html = "";
-  let css = "";
+    parser.parseString(data, (err, result: SpreadXML) => {
+      if (err) throw err;
 
-  spread.page.forEach((page, index) => {
-    html += `<div class="page page-${index}">\n`;
-    css += `.page-${index} {\n  width: ${page.width}px;\n  height: ${page.height}px;\n`;
-    css += `  display: grid;\n  grid-template-columns: repeat(${page.margin.columnCount}, 1fr);\n`;
-    css += `  gap: ${page.margin.columnGutter}px;\n  padding: ${page.margin.top}px ${page.margin.right}px ${page.margin.bottom}px ${page.margin.left}px;\n}\n`;
+      const spread = result["idPkg:Spread"].Spread[0];
+      let htmlOutput = generateSpreadContainer(spread.$);
 
-    page.frames.forEach((frame, i) => {
-      const frameClass = `frame-${index}-${i}`;
-      if (frame.type === "text") {
-        html += `<div class="${frameClass} text-frame">${frame.content}</div>\n`;
-        css += `.${frameClass} { position: absolute; top: ${frame.y}px; left: ${frame.x}px; width: ${frame.width}px; height: ${frame.height}px; }\n`;
-      } else if (frame.type === "graphic") {
-        html += `<div class="${frameClass} graphic-frame"><img src="${frame.imageSrc}" alt="Graphic Frame"></div>\n`;
-        css += `.${frameClass} { position: absolute; top: ${frame.y}px; left: ${frame.x}px; width: ${frame.width}px; height: ${frame.height}px; }\n`;
+      // Parse FlattenerPreference if exists
+      if (spread.FlattenerPreference) {
+        htmlOutput += generateFlattenerPreferenceHTML(
+          spread.FlattenerPreference[0]
+        );
       }
+
+      // Parse direct children of Spread
+      console.log(spread);
+      htmlOutput = parseSpreadChildren(spread, htmlOutput);
+      return;
+      // Parse Pages and their children
+      if (spread.Page) {
+        spread.Page.forEach((page: PageElement) => {
+          const pageHtml = generatePageContainer(page.$, page);
+          htmlOutput += parsePageChildren(page, pageHtml);
+          htmlOutput += "</div>\n"; // Close page
+        });
+      }
+
+      htmlOutput += "</div>\n"; // Close spread
+
+      // Write output to file
+      fs.writeFileSync("parsed-spread.html", htmlOutput);
+      console.log("Parsed spread written to parsed-spread.html");
     });
-
-    html += "</div>\n";
   });
-
-  return { html, css };
 }
 
-function generateHtmlAndCssFromSpread(spread: any): {
-  html: string;
-  css: string;
-} {
-  let html = `<div class="spread" id="${spread.$.Self}">\n`;
-  let css = `.spread {\n  position: relative;\n  width: 100%;\n  height: auto;\n  display: block;\n}\n\n`;
-
-  // Generate HTML and CSS for each page in the spread
-  spread.Page.forEach((page: any, pageIndex: number) => {
-    const pageId = page.$.Self || `page-${pageIndex}`;
-    html += `  <div class="page" id="${pageId}">\n`;
-    css += `#${pageId} {\n  position: relative;\n  margin: 20px;\n}\n\n`;
-
-    // Extract and style rectangles
-    if (spread.Rectangle) {
-      spread.Rectangle.forEach((rect: any, rectIndex: number) => {
-        const rectId = rect.$.Self || `rectangle-${rectIndex}`;
-        const [x, y, width, height] =
-          rect.$.GeometricBounds.split(" ").map(Number);
-
-        html += `    <div class="rectangle" id="${rectId}"></div>\n`;
-        css += `#${rectId} {\n  position: absolute;\n  top: ${y}px;\n  left: ${x}px;\n  width: ${
-          width - x
-        }px;\n  height: ${
-          height - y
-        }px;\n  background: #eee;\n  border: 1px solid #ccc;\n}\n\n`;
-      });
-    }
-
-    // Extract and style text frames
-    if (spread.TextFrame) {
-      spread.TextFrame.forEach((textFrame: any, textIndex: number) => {
-        const textId = textFrame.$.Self || `text-frame-${textIndex}`;
-        const [x, y, width, height] =
-          textFrame.$.GeometricBounds.split(" ").map(Number);
-        const textContent = textFrame.Properties[0].Content || "Sample Text";
-
-        html += `    <div class="text-frame" id="${textId}">${textContent}</div>\n`;
-        css += `#${textId} {\n  position: absolute;\n  top: ${y}px;\n  left: ${x}px;\n  width: ${
-          width - x
-        }px;\n  height: ${
-          height - y
-        }px;\n  color: #333;\n  font-size: 14px;\n  padding: 4px;\n}\n\n`;
-      });
-    }
-
-    // Extract and style graphic lines
-    if (spread.GraphicLine) {
-      spread.GraphicLine.forEach((line: any, lineIndex: number) => {
-        const lineId = line.$.Self || `graphic-line-${lineIndex}`;
-        const [x1, y1, x2, y2] = line.$.GeometricBounds.split(" ").map(Number);
-
-        html += `    <div class="graphic-line" id="${lineId}"></div>\n`;
-        css += `#${lineId} {\n  position: absolute;\n  top: ${y1}px;\n  left: ${x1}px;\n  width: ${
-          x2 - x1
-        }px;\n  height: ${y2 - y1}px;\n  border-top: 1px solid #000;\n}\n\n`;
-      });
-    }
-
-    // Extract and style polygons
-    if (spread.Polygon) {
-      spread.Polygon.forEach((polygon: any, polygonIndex: number) => {
-        const polygonId = polygon.$.Self || `polygon-${polygonIndex}`;
-        const [x, y, width, height] =
-          polygon.$.GeometricBounds.split(" ").map(Number);
-
-        html += `    <div class="polygon" id="${polygonId}"></div>\n`;
-        css += `#${polygonId} {\n  position: absolute;\n  top: ${y}px;\n  left: ${x}px;\n  width: ${
-          width - x
-        }px;\n  height: ${
-          height - y
-        }px;\n  background: #ccc;\n  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);\n}\n\n`;
-      });
-    }
-
-    html += `  </div>\n`; // Close page div
-  });
-
-  html += `</div>\n`; // Close spread div
-
-  return { html, css };
+function generateSpreadContainer(spreadAttrs: SpreadAttributes): string {
+  return `<div id="${spreadAttrs.Self}" class="spread" 
+    data-page-count="${spreadAttrs.PageCount}"
+    data-binding-location="${spreadAttrs.BindingLocation}"
+    data-page-transition-type="${spreadAttrs.PageTransitionType}"
+    data-page-transition-direction="${spreadAttrs.PageTransitionDirection}"
+    data-page-transition-duration="${spreadAttrs.PageTransitionDuration}"
+    style="transform: ${spreadAttrs.ItemTransform};">\n`;
 }
 
-// Usage example
-const parsedSpread = {
-  // Spread JSON data here (e.g., parsed from XML)
-};
+function generatePageContainer(
+  pageAttrs: PageAttributes,
+  page: PageElement
+): string {
+  const bounds = pageAttrs.GeometricBounds.split(" ").map(Number);
+  const width = bounds[2] - bounds[0];
+  const height = bounds[3] - bounds[1];
+
+  let pageHTML = `<div id="${pageAttrs.Self}" class="page"
+    data-name="${pageAttrs.Name}"
+    data-applied-master="${pageAttrs.AppliedMaster}"
+    style="width: ${width}px; height: ${height}px; transform: ${pageAttrs.ItemTransform};">\n`;
+
+  // Add Properties if they exist
+  if (page.Properties) {
+    const props = page.Properties[0];
+    pageHTML += `<div class="page-properties"
+      data-page-color="${props.PageColor[0]._}"
+      data-descriptor='${JSON.stringify(
+        props.Descriptor[0].ListItem.map((item) => item._)
+      )}'>
+    </div>\n`;
+  }
+
+  // Add MarginPreference if it exists
+  if (page.MarginPreference) {
+    const margin = page.MarginPreference[0].$;
+    pageHTML += `<div class="margin-preference"
+      data-column-count="${margin.ColumnCount}"
+      data-column-gutter="${margin.ColumnGutter}"
+      style="
+        padding: ${margin.Top}px ${margin.Right}px ${margin.Bottom}px ${margin.Left}px;
+        column-count: ${margin.ColumnCount};
+        column-gap: ${margin.ColumnGutter}px;
+      ">
+    </div>\n`;
+  }
+
+  // Add GridDataInformation if it exists
+  if (page.GridDataInformation) {
+    const grid = page.GridDataInformation[0].$;
+    const appliedFont =
+      page.GridDataInformation[0].Properties[0].AppliedFont[0]._;
+    pageHTML += `<div class="grid-data"
+      data-font-style="${grid.FontStyle}"
+      data-point-size="${grid.PointSize}"
+      data-character-aki="${grid.CharacterAki}"
+      data-line-aki="${grid.LineAki}"
+      data-horizontal-scale="${grid.HorizontalScale}"
+      data-vertical-scale="${grid.VerticalScale}"
+      data-line-alignment="${grid.LineAlignment}"
+      data-grid-alignment="${grid.GridAlignment}"
+      data-character-alignment="${grid.CharacterAlignment}"
+      data-applied-font="${appliedFont}">
+    </div>\n`;
+  }
+
+  return pageHTML;
+}
+
+function parseSpreadChildren(
+  spread: SpreadElement,
+  htmlOutput: string
+): string {
+  let output = htmlOutput;
+
+  // Parse Rectangles at Spread level
+  if (spread.Rectangle) {
+    console.log("Retttangolo");
+    console.log(spread.Rectangle);
+    spread.Rectangle.forEach((rect: RectangleElement) => {
+      output += generateRectangleHTML(rect);
+    });
+  }
+
+  // Parse TextFrames at Spread level
+  if (spread.TextFrame) {
+    spread.TextFrame.forEach((frame: TextFrameElement) => {
+      output += generateTextFrameHTML(frame);
+    });
+  }
+
+  // Parse GraphicLines at Spread level
+  if (spread.GraphicLine) {
+    spread.GraphicLine.forEach((line: GraphicLineElement) => {
+      output += generateGraphicLineHTML(line);
+    });
+  }
+
+  // Parse Groups at Spread level
+  if (spread.Group) {
+    spread.Group.forEach((group: GroupElement) => {
+      output += generateGroupHTML(group);
+    });
+  }
+
+  // Parse Polygons at Spread level
+  if (spread.Polygon) {
+    spread.Polygon.forEach((polygon: PolygonElement) => {
+      output += generatePolygonHTML(polygon);
+    });
+  }
+
+  return output;
+}
+
+function parsePageChildren(page: PageElement, htmlOutput: string): string {
+  let output = htmlOutput;
+
+  // Parse Rectangles within Page
+  if (page.Rectangle) {
+    page.Rectangle.forEach((rect: RectangleElement) => {
+      output += generateRectangleHTML(rect);
+    });
+  }
+
+  // Parse TextFrames within Page
+  if (page.TextFrame) {
+    page.TextFrame.forEach((frame: TextFrameElement) => {
+      output += generateTextFrameHTML(frame);
+    });
+  }
+
+  // Parse GraphicLines within Page
+  if (page.GraphicLine) {
+    page.GraphicLine.forEach((line: GraphicLineElement) => {
+      output += generateGraphicLineHTML(line);
+    });
+  }
+
+  return output;
+}
+
+function generateRectangleHTML(rect: RectangleElement): string {
+  const rectAttrs = rect.$;
+  return `<div id="${rectAttrs.Self}" 
+    class="rectangle"
+    data-content-type="${rectAttrs.ContentType}"
+    data-layer="${rectAttrs.ItemLayer}"
+    data-locked="${rectAttrs.Locked}"
+    style="transform: ${rectAttrs.ItemTransform};">
+    ${rect.Image ? generateImageHTML(rect.Image[0]) : ""}
+  </div>\n`;
+}
+
+function generateTextFrameHTML(frame: TextFrameElement): string {
+  const frameAttrs = frame.$;
+  let storyContent = "";
+
+  try {
+    // const idmlFilePath = path.join(process.cwd(), idmlUrl);
+
+    const storyPath = getStoryPath(frameAttrs.ParentStory);
+    storyContent = parseStoryToHTML(storyPath);
+  } catch (error) {
+    console.warn(
+      `Could not load story ${frameAttrs.ParentStory} for text frame ${frameAttrs.Self}`
+    );
+  }
+
+  return `<div id="${frameAttrs.Self}" 
+    class="text-frame"
+    data-content-type="${frameAttrs.ContentType}"
+    data-parent-story="${frameAttrs.ParentStory}"
+    style="transform: ${frameAttrs.ItemTransform};">
+    ${storyContent}
+  </div>\n`;
+}
+
+function generateGraphicLineHTML(line: GraphicLineElement): string {
+  const lineAttrs = line.$;
+  return `<hr id="${lineAttrs.Self}" 
+    class="graphic-line"
+    data-stroke-color="${lineAttrs.StrokeColor}"
+    style="
+      transform: ${lineAttrs.ItemTransform};
+      border-top: ${lineAttrs.StrokeWeight}px solid;
+    ">\n`;
+}
+
+function generateGroupHTML(group: GroupElement): string {
+  const groupAttrs = group.$;
+  const childrenHTML = parseGroupChildren(group);
+
+  return `<div id="${groupAttrs.Self}" 
+    class="group"
+    data-visible="${groupAttrs.Visible}"
+    data-locked="${groupAttrs.Locked}"
+    style="transform: ${groupAttrs.ItemTransform};">
+    ${childrenHTML}
+  </div>\n`;
+}
+
+function parseGroupChildren(group: GroupElement): string {
+  let output = "";
+
+  if (group.Rectangle) {
+    group.Rectangle.forEach((rect) => {
+      output += generateRectangleHTML(rect);
+    });
+  }
+
+  if (group.TextFrame) {
+    group.TextFrame.forEach((frame) => {
+      output += generateTextFrameHTML(frame);
+    });
+  }
+
+  if (group.GraphicLine) {
+    group.GraphicLine.forEach((line) => {
+      output += generateGraphicLineHTML(line);
+    });
+  }
+
+  return output;
+}
+
+function generateImageHTML(image: ImageElement): string {
+  return `<img src="${image.Link?.[0].$.LinkResourceURI || ""}" 
+    alt="" 
+    style="transform: ${image.$.ItemTransform || "none"};"/>`;
+}
+
+// Helper function to get the story file path
+function getStoryPath(storyId: string): string {
+  const storyPath = path.join(
+    process.cwd(),
+    path.dirname(idmlUrl) + "/extracted/Stories" + `/Story_${storyId}.xml`
+  );
+  return storyPath;
+}
+
+// Add new generator functions
+function generateFlattenerPreferenceHTML(
+  flattener: SpreadElement["FlattenerPreference"][0]
+): string {
+  const attrs = flattener.$;
+  const rasterVectorBalance = flattener.Properties[0].RasterVectorBalance[0]._;
+
+  return `<div class="flattener-preference"
+    data-line-art-resolution="${attrs.LineArtAndTextResolution}"
+    data-gradient-resolution="${attrs.GradientAndMeshResolution}"
+    data-clip-complex="${attrs.ClipComplexRegions}"
+    data-convert-strokes="${attrs.ConvertAllStrokesToOutlines}"
+    data-convert-text="${attrs.ConvertAllTextToOutlines}"
+    data-raster-vector-balance="${rasterVectorBalance}">
+  </div>\n`;
+}
+
+// Add Polygon generator function
+function generatePolygonHTML(polygon: PolygonElement): string {
+  const polygonAttrs = polygon.$;
+  return `<div id="${polygonAttrs.Self}" 
+    class="polygon"
+    data-content-type="${polygonAttrs.ContentType}"
+    data-layer="${polygonAttrs.ItemLayer}"
+    data-locked="${polygonAttrs.Locked}"
+    data-visible="${polygonAttrs.Visible}"
+    style="transform: ${polygonAttrs.ItemTransform};">
+  </div>\n`;
+}
