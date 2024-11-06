@@ -6,3 +6,5 @@ node_modules
 
 # sst
 .sst
+
+/app/assets/extracted

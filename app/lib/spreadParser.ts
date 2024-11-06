@@ -3,311 +3,60 @@ import * as xml2js from "xml2js";
 import { parseStoryToHTML } from "./storiesParser";
 import path from "path";
 import idmlUrl from "~/assets/example.idml";
+import {
+  SpreadXML,
+  SpreadElement,
+  PageElement,
+  RectangleElement,
+  TextFrameElement,
+  GraphicLineElement,
+  GroupElement,
+  PolygonElement,
+  ImageElement,
+  SpreadAttributes,
+  PageAttributes,
+  FlattenerPreference,
+} from "./interfaces/spreadInterfaces";
 
-// Type definitions for XML structure
-interface SpreadXML {
-  "idPkg:Spread": {
-    Spread: SpreadElement[];
-  };
-}
-
-interface SpreadElement {
-  $: SpreadAttributes;
-  FlattenerPreference?: [
-    {
-      $: FlattenerPreference;
-      Properties: [
-        {
-          RasterVectorBalance: [{ $: { type: string }; _: string }];
-        }
-      ];
-    }
-  ];
-  Page?: PageElement[];
-  Rectangle?: RectangleElement[];
-  TextFrame?: TextFrameElement[];
-  GraphicLine?: GraphicLineElement[];
-  Group?: GroupElement[];
-  Button?: ButtonElement[];
-  AnimationSetting?: AnimationElement[];
-  MultiStateObject?: MultiStateElement[];
-  Polygon?: PolygonElement[];
-}
-
-interface PageElement {
-  $: PageAttributes;
-  Properties?: [
-    {
-      PageColor: [{ $: { type: string }; _: string }];
-      Descriptor: [
-        {
-          ListItem: Array<{ $: { type: string }; _: string }>;
-        }
-      ];
-    }
-  ];
-  MarginPreference?: [
-    {
-      $: MarginPreference;
-    }
-  ];
-  GridDataInformation?: [
-    {
-      $: GridDataInformation;
-      Properties: [
-        {
-          AppliedFont: [{ $: { type: string }; _: string }];
-        }
-      ];
-    }
-  ];
-  Rectangle?: RectangleElement[];
-  TextFrame?: TextFrameElement[];
-  GraphicLine?: GraphicLineElement[];
-  // ... other possible page children
-}
-
-interface RectangleElement {
-  $: RectangleAttributes;
-  Image?: ImageElement[];
-}
-
-interface TextFrameElement {
-  $: TextFrameAttributes;
-}
-
-interface GraphicLineElement {
-  $: GraphicLineAttributes;
-}
-
-interface GroupElement {
-  $: GroupAttributes;
-  Rectangle?: RectangleElement[];
-  TextFrame?: TextFrameElement[];
-  GraphicLine?: GraphicLineElement[];
-}
-
-interface ButtonElement {
-  $: ButtonAttributes;
-}
-
-interface AnimationElement {
-  $: AnimationSettingAttributes;
-}
-
-interface MultiStateElement {
-  $: MultiStateObjectAttributes;
-}
-
-interface ImageElement {
-  $: {
-    ItemTransform: string;
-  };
-  Link?: [
-    {
-      $: {
-        LinkResourceURI: string;
-      };
-    }
-  ];
-}
-
-// Type definitions based on IDML specification
-interface SpreadAttributes {
-  Self: string;
-  PageTransitionType: string;
-  PageTransitionDirection: string;
-  PageTransitionDuration: string;
-  ShowMasterItems: boolean;
-  PageCount: number;
-  BindingLocation: string;
-  AllowPageShuffle: boolean;
-  ItemTransform: string;
-  FlattenerOverride: string;
-}
-
-interface PageAttributes {
-  Self: string;
-  TabOrder: string;
-  AppliedMaster: string;
-  MasterPageTransform: string;
-  Name: string;
-  GeometricBounds: string;
-  ItemTransform: string;
-}
-
-interface GuideAttributes {
-  Self: string;
-  Orientation: "Vertical" | "Horizontal";
-  Location: string;
-  FitToPage: boolean;
-  ViewThreshold: number;
-  Locked: boolean;
-  ItemLayer: string;
-}
-
-interface MarginPreference {
-  ColumnCount: number;
-  ColumnGutter: number;
-  Top: number;
-  Bottom: number;
-  Left: number;
-  Right: number;
-  ColumnDirection: string;
-  ColumnsPositions: string;
-}
-
-interface TextFrameAttributes {
-  Self: string;
-  ParentStory: string;
-  ContentType: string;
-  ItemTransform: string;
-}
-
-interface RectangleAttributes {
-  Self: string;
-  ContentType: string;
-  StoryTitle: string;
-  Visible: boolean;
-  ItemTransform: string;
-  GradientFillStart?: string;
-  GradientFillLength?: string;
-  GradientFillAngle?: string;
-  ItemLayer: string;
-  Locked: boolean;
-  LocalDisplaySetting: string;
-  AppliedObjectStyle: string;
-}
-
-interface GraphicLineAttributes {
-  Self: string;
-  ContentType: string;
-  StrokeColor: string;
-  StrokeWeight: string;
-  LeftLineEnd?: string;
-  ItemTransform: string;
-  ItemLayer: string;
-}
-
-interface GroupAttributes {
-  Self: string;
-  ItemTransform: string;
-  Visible: boolean;
-  Locked: boolean;
-}
-
-interface ButtonAttributes {
-  Self: string;
-  ItemTransform: string;
-  Visible: boolean;
-  Enabled: boolean;
-}
-
-interface AnimationSettingAttributes {
-  Self: string;
-  Duration: string;
-  MotionPath: string;
-}
-
-interface MultiStateObjectAttributes {
-  Self: string;
-  InitialState: string;
-  ItemTransform: string;
-}
-
-// Add new interfaces for missing elements
-interface FlattenerPreference {
-  LineArtAndTextResolution: string;
-  GradientAndMeshResolution: string;
-  ClipComplexRegions: boolean;
-  ConvertAllStrokesToOutlines: boolean;
-  ConvertAllTextToOutlines: boolean;
-  RasterVectorBalance: number;
-}
-
-interface PageProperties {
-  PageColor: string;
-  Descriptor: {
-    ListItem: Array<string | number | boolean>;
-  };
-}
-
-interface GridDataInformation {
-  FontStyle: string;
-  PointSize: number;
-  CharacterAki: number;
-  LineAki: number;
-  HorizontalScale: number;
-  VerticalScale: number;
-  LineAlignment: string;
-  GridAlignment: string;
-  CharacterAlignment: string;
-  AppliedFont: string;
-}
-
-// Add Polygon interface
-interface PolygonElement {
-  $: PolygonAttributes;
-}
-
-interface PolygonAttributes {
-  Self: string;
-  ContentType: string;
-  StoryTitle: string;
-  OverriddenPageItemProps: string;
-  Visible: boolean;
-  Name: string;
-  HorizontalLayoutConstraints: string;
-  VerticalLayoutConstraints: string;
-  GradientFillStart: string;
-  GradientFillLength: string;
-  GradientFillAngle: string;
-  ItemLayer: string;
-  Locked: boolean;
-  LocalDisplaySetting: string;
-  ItemTransform: string;
-}
-
-// Function to parse Spread XML and convert to HTML
-export function parseSpreadToHTML(filePath: string): void {
+export async function parseSpreadToHTML(spreadXML: string): Promise<string> {
   const parser = new xml2js.Parser();
+  let htmlOutput: string = "";
+  try {
+    const result: SpreadXML = await parser.parseStringPromise(spreadXML);
 
-  fs.readFile(filePath, (err, data) => {
-    if (err) throw err;
+    const spread = result["idPkg:Spread"].Spread[0];
+    console.log(spread);
+    htmlOutput = generateSpreadContainer(spread.$);
 
-    parser.parseString(data, (err, result: SpreadXML) => {
-      if (err) throw err;
+    // Parse FlattenerPreference if exists
+    if (spread.FlattenerPreference) {
+      htmlOutput += generateFlattenerPreferenceHTML(
+        spread.FlattenerPreference[0]
+      );
+    }
 
-      const spread = result["idPkg:Spread"].Spread[0];
-      let htmlOutput = generateSpreadContainer(spread.$);
+    // Parse direct children of Spread
+    htmlOutput = parseSpreadChildren(spread, htmlOutput);
+    // console.log(htmlOutput);
 
-      // Parse FlattenerPreference if exists
-      if (spread.FlattenerPreference) {
-        htmlOutput += generateFlattenerPreferenceHTML(
-          spread.FlattenerPreference[0]
-        );
+    // Parse Pages and their children
+    if (spread.Page) {
+      for (const page of spread.Page) {
+        const pageHtml = generatePageContainer(page.$, page);
+        htmlOutput += parsePageChildren(page, pageHtml);
+        htmlOutput += "</div>\n"; // Close page
       }
+    }
 
-      // Parse direct children of Spread
-      console.log(spread);
-      htmlOutput = parseSpreadChildren(spread, htmlOutput);
-      return;
-      // Parse Pages and their children
-      if (spread.Page) {
-        spread.Page.forEach((page: PageElement) => {
-          const pageHtml = generatePageContainer(page.$, page);
-          htmlOutput += parsePageChildren(page, pageHtml);
-          htmlOutput += "</div>\n"; // Close page
-        });
-      }
+    htmlOutput += "</div>\n"; // Close spread
 
-      htmlOutput += "</div>\n"; // Close spread
+    // Write output to file
 
-      // Write output to file
-      fs.writeFileSync("parsed-spread.html", htmlOutput);
-      console.log("Parsed spread written to parsed-spread.html");
-    });
-  });
+    return htmlOutput;
+  } catch (err) {
+    console.error("Failed to parse spread:", err);
+    throw new Error(`Failed to parse spread: ${err}`);
+  }
 }
 
 function generateSpreadContainer(spreadAttrs: SpreadAttributes): string {
@@ -385,7 +134,7 @@ function parseSpreadChildren(
   htmlOutput: string
 ): string {
   let output = htmlOutput;
-
+  console.log(spread);
   // Parse Rectangles at Spread level
   if (spread.Rectangle) {
     console.log("Retttangolo");
