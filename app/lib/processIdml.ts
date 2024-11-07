@@ -17,7 +17,7 @@ const processIdml = async (idmlUrl: string) => {
   console.log(spreadsFiles);
   const spread1FileName = spreadsFiles[0];
 
-  const spreadFile: string = await fs.promises.readFile(
+  const spreadFile = await fs.promises.readFile(
     spreadsFolder + "/" + spread1FileName
   );
 
