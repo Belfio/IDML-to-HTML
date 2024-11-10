@@ -1,40 +1,17 @@
-# Welcome to Remix!
+# Indesign parser to HTML
 
-- 📖 [Remix docs](https://remix.run/docs)
+Collaboratively modify and automate changes into a IDML Indesign template.
 
-## Development
+## Why
 
-Run the dev server:
+Preparing a magazine by adding the images and text is a manual process that takes a big amount of time.
+Automations in InDesign are very limited and a big chunk of work for magazines can be automated.
 
-```shellscript
-npm run dev
-```
+## What
 
-## Deployment
+IDML parser and Typescript + AI automation.
 
-First, build your app for production:
+## How
 
-```sh
-npm run build
-```
-
-Then run the app in production mode:
-
-```sh
-npm start
-```
-
-Now you'll need to pick a host to deploy it to.
-
-### DIY
-
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+###IDLM parser
+We start from extracting the IDML and parsing the XML into a main JSON file, a set of HTMLs and a CSS.
