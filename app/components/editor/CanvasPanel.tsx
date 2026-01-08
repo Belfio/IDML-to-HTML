@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useEditorStore } from '~/lib/state/editorStore';
 import { FabricCanvas } from '~/lib/canvas/fabricCanvas';
+import { IDMLTextFrame } from '~/lib/canvas/textFrame';
+import { updateStoryFromText, serializeStoryToXML } from '~/lib/textEditor/storySerializer';
+import { useFetcher } from '@remix-run/react';
 
 /**
  * CanvasPanel: Fabric.js canvas integration component
@@ -18,6 +21,8 @@ export function CanvasPanel() {
   const fabricCanvasRef = useRef<FabricCanvas | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
+  const fetcher = useFetcher();
 
   // Get state from store
   const getCurrentSpread = useEditorStore((state) => state.getCurrentSpread);
@@ -25,6 +30,7 @@ export function CanvasPanel() {
   const setCanvasInstance = useEditorStore((state) => state.setCanvasInstance);
   const zoom = useEditorStore((state) => state.zoom);
   const stories = useEditorStore((state) => state.stories);
+  const uploadId = useEditorStore((state) => state.uploadId);
 
   // Initialize canvas on mount
   useEffect(() => {
@@ -107,6 +113,77 @@ export function CanvasPanel() {
     canvas.renderAll();
   }, [zoom]);
 
+  // Auto-save functionality
+  useEffect(() => {
+    if (!fabricCanvasRef.current || !uploadId) return;
+
+    const canvas = fabricCanvasRef.current.getCanvas();
+
+    // Debounced save function
+    let saveTimeout: NodeJS.Timeout;
+
+    const handleTextChange = (e: any) => {
+      const target = e.target;
+
+      // Check if it's a text frame that changed
+      if (target instanceof IDMLTextFrame && target.hasChanged()) {
+        clearTimeout(saveTimeout);
+
+        // Debounce saves by 2 seconds
+        saveTimeout = setTimeout(() => {
+          saveTextFrame(target);
+        }, 2000);
+      }
+    };
+
+    const saveTextFrame = async (textFrame: IDMLTextFrame) => {
+      try {
+        const modInfo = textFrame.getModificationInfo();
+        const originalStory = stories[modInfo.parentStory];
+
+        if (!originalStory) {
+          console.warn(`Story ${modInfo.parentStory} not found`);
+          return;
+        }
+
+        // Update story with new text
+        const updatedStory = updateStoryFromText(
+          originalStory,
+          modInfo.textData.text,
+          modInfo.textData.styles
+        );
+
+        // Save via API
+        fetcher.submit(
+          {
+            uploadId,
+            storyId: modInfo.parentStory,
+            storyData: JSON.stringify(updatedStory),
+          },
+          {
+            method: 'post',
+            action: '/api/save-story',
+            encType: 'application/json',
+          }
+        );
+
+        setLastSaveTime(new Date());
+        console.log(`Auto-saved story ${modInfo.parentStory}`);
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+      }
+    };
+
+    canvas.on('text:changed', handleTextChange);
+    canvas.on('object:modified', handleTextChange);
+
+    return () => {
+      canvas.off('text:changed', handleTextChange);
+      canvas.off('object:modified', handleTextChange);
+      clearTimeout(saveTimeout);
+    };
+  }, [fabricCanvasRef.current, uploadId, stories, fetcher]);
+
   // Loading state
   if (isLoading && !fabricCanvasRef.current) {
     return (
@@ -167,6 +244,14 @@ export function CanvasPanel() {
       <div className="absolute bottom-4 left-4 bg-gray-900 bg-opacity-75 rounded px-3 py-2 text-xs text-gray-300">
         <div>Zoom: {Math.round(zoom * 100)}%</div>
         <div>Spread: {currentSpreadIndex + 1}</div>
+        {lastSaveTime && (
+          <div className="text-green-400 mt-1">
+            Saved: {lastSaveTime.toLocaleTimeString()}
+          </div>
+        )}
+        {fetcher.state === 'submitting' && (
+          <div className="text-yellow-400 mt-1">Saving...</div>
+        )}
       </div>
     </div>
   );

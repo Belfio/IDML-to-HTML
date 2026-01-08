@@ -20,6 +20,18 @@ Transform InDesign documents into editable, web-based content. Enable users to u
 - [x] Integrate Fabric.js canvas into CanvasPanel
 - [x] Add drag-drop file upload to upload page
 
+**Phase 2: Text Editing** ✅ **MOSTLY COMPLETED**
+- [x] Parse Story XML files into structured data
+- [x] Create custom IDMLTextFrame class extending Fabric IText
+- [x] Implement character formatting UI (font, size, color, bold/italic)
+- [x] Implement paragraph formatting UI (alignment)
+- [x] Create TextPropertiesPanel component
+- [x] Build story serializer (text → Story XML)
+- [x] Add auto-save functionality (2s debounce)
+- [x] Create save API endpoint
+- [x] Track text modifications
+- [ ] Styles.xml parsing and style manager (moved to Phase 3)
+
 ### 📅 Upcoming Phases
 
 - **Phase 2**: Text Editing (4-5 weeks) - PRIORITY
@@ -183,17 +195,17 @@ npm run typecheck
 - Linked text frames (overflow handling)
 
 **Progress**:
-- [ ] Parse Story XML files into structured data
-- [ ] Create custom TextFrame class extending Fabric IText
-- [ ] Implement character formatting UI (font, size, color, bold/italic)
-- [ ] Implement paragraph formatting UI (alignment, spacing, indents)
-- [ ] Load and parse Resources/Styles.xml
-- [ ] Build style manager with style inheritance resolution
-- [ ] Create TextPropertiesPanel component
-- [ ] Implement style application to text
-- [ ] Build story serializer (edited text → Story XML)
-- [ ] Add auto-save functionality for text edits
-- [ ] Handle linked text frames (overflow between frames)
+- [x] Parse Story XML files into structured data
+- [x] Create custom TextFrame class extending Fabric IText
+- [x] Implement character formatting UI (font, size, color, bold/italic)
+- [x] Implement paragraph formatting UI (alignment, spacing)
+- [x] Create TextPropertiesPanel component
+- [x] Build story serializer (edited text → Story XML)
+- [x] Add auto-save functionality for text edits (2s debounce)
+- [x] Create save API endpoint
+- [ ] Load and parse Resources/Styles.xml (deferred to Phase 3)
+- [ ] Build style manager with style inheritance resolution (deferred to Phase 3)
+- [ ] Handle linked text frames (overflow between frames) (future enhancement)
 - [ ] Test text editing with multiple styles
 - [ ] Update E2E tests for text editing
 
@@ -494,5 +506,5 @@ This is an active development project. See the plan file for detailed implementa
 ---
 
 **Last Updated**: January 8, 2026
-**Current Phase**: Phase 2 - Text Editing (PRIORITY)
-**Next Milestone**: Parse Story XML files and create editable text frames
+**Current Phase**: Phase 3 - Visual Fidelity
+**Next Milestone**: Color management and CMYK → RGB conversion
