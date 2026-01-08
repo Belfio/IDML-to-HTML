@@ -9,6 +9,9 @@ Transform InDesign documents into editable, web-based content. Enable users to u
 ## 📋 Current Status
 
 ### ✅ Completed
+
+### ✅ Completed
+
 - [x] Upload system with file validation (50MB max, .idml only)
 - [x] IDML extraction (unzip to `uploads/{uuid}/extracted/`)
 - [x] XML parsing for Spreads and Stories
@@ -17,16 +20,15 @@ Transform InDesign documents into editable, web-based content. Enable users to u
 - [x] 10 passing E2E tests (Playwright)
 - [x] Drag-and-drop file upload
 
-### 🚧 In Progress
-**Phase 1: Foundation & Architecture** (Week 1 of 3-4)
+**Phase 1: Foundation & Architecture** ✅ **COMPLETED**
 - [x] Install Fabric.js and Zustand dependencies
-- [x] Create Fabric.js canvas wrapper
-- [x] Set up Zustand state management
-- [x] Build InDesign-like 3-panel UI layout
+- [x] Create Fabric.js canvas wrapper (`/app/lib/canvas/fabricCanvas.ts`)
+- [x] Set up Zustand state management (`/app/lib/state/editorStore.ts`)
+- [x] Build InDesign-like 3-panel UI layout (`/app/routes/editor.$id.tsx`)
 - [x] Parse all spreads (all 27+ spreads now loaded)
-- [x] Multi-page navigation
-- [ ] Integrate Fabric.js canvas into CanvasPanel
-- [ ] Add drag-drop file upload
+- [x] Multi-page navigation (keyboard + UI controls)
+- [x] Integrate Fabric.js canvas into CanvasPanel
+- [x] Add drag-drop file upload to upload page
 
 ### 📅 Upcoming Phases
 
@@ -404,5 +406,5 @@ This is an active development project. See the plan file for detailed implementa
 ---
 
 **Last Updated**: January 8, 2026
-**Current Phase**: Phase 1 - Foundation & Architecture (Week 1 of 3-4)
-**Next Milestone**: Main editor route and UI layout
+**Current Phase**: Phase 2 - Text Editing (PRIORITY)
+**Next Milestone**: Editable text frames with formatting

@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useSubmit } from "@remix-run/react";
+import { useState, useRef, DragEvent } from "react";
 import { writeFile, mkdir } from "fs/promises";
 import { randomUUID } from "crypto";
 import processIdml from "~/lib/processIdml";
@@ -106,6 +107,76 @@ interface ActionData {
 
 export default function Index() {
   const actionData = useActionData<typeof action>();
+  const submit = useSubmit();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+
+  // Drag and drop handlers
+  const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+
+      // Validate file type
+      if (!file.name.endsWith('.idml')) {
+        alert('Please upload a valid IDML file');
+        return;
+      }
+
+      // Validate file size (50MB)
+      const maxSize = 50 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert('File too large. Maximum size is 50MB.');
+        return;
+      }
+
+      // Update file input and submit
+      if (fileInputRef.current) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInputRef.current.files = dataTransfer.files;
+        setSelectedFileName(file.name);
+
+        // Create FormData and submit
+        const formData = new FormData();
+        formData.append('idmlFile', file);
+        submit(formData, { method: 'post', encType: 'multipart/form-data' });
+      }
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFileName(file.name);
+    }
+  };
+
+  const handleDropZoneClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="container mx-auto p-4 max-w-2xl">
@@ -113,28 +184,73 @@ export default function Index() {
 
       <div className="bg-white shadow-md rounded-lg p-6">
         <Form method="post" encType="multipart/form-data" className="space-y-4">
-          <div>
-            <label htmlFor="idmlFile" className="block text-sm font-medium text-gray-700 mb-2">
-              Select IDML File
-            </label>
+          {/* Drag and Drop Zone */}
+          <div
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={handleDropZoneClick}
+            className={`
+              relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+              transition-all duration-200
+              ${
+                isDragging
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-300 hover:border-gray-400 bg-gray-50 hover:bg-gray-100'
+              }
+            `}
+          >
+            <div className="flex flex-col items-center space-y-3">
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                  isDragging ? 'bg-blue-100' : 'bg-gray-200'
+                }`}
+              >
+                <svg
+                  className={`w-8 h-8 ${isDragging ? 'text-blue-600' : 'text-gray-500'}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+              </div>
+
+              <div>
+                <p className="text-lg font-medium text-gray-900">
+                  {isDragging ? 'Drop your IDML file here' : 'Drag and drop your IDML file here'}
+                </p>
+                <p className="text-sm text-gray-500 mt-1">or click to browse</p>
+              </div>
+
+              {selectedFileName && (
+                <div className="mt-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                  <p className="text-sm text-green-700 font-medium">{selectedFileName}</p>
+                </div>
+              )}
+            </div>
+
             <input
+              ref={fileInputRef}
               id="idmlFile"
               type="file"
               name="idmlFile"
               accept=".idml"
               required
-              className="block w-full text-sm text-gray-500
-                         file:mr-4 file:py-2 file:px-4
-                         file:rounded-full file:border-0
-                         file:text-sm file:font-semibold
-                         file:bg-violet-50 file:text-violet-700
-                         hover:file:bg-violet-100
-                         cursor-pointer"
+              onChange={handleFileChange}
+              className="hidden"
             />
-            <p className="mt-2 text-sm text-gray-500">
-              Maximum file size: 50MB. Only .idml files are accepted.
-            </p>
           </div>
+
+          <p className="text-sm text-gray-500 text-center">
+            Maximum file size: 50MB. Only .idml files are accepted.
+          </p>
 
           <button
             type="submit"
