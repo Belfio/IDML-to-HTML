@@ -20,11 +20,13 @@ Transform InDesign documents into editable, web-based content. Enable users to u
 ### 🚧 In Progress
 **Phase 1: Foundation & Architecture** (Week 1 of 3-4)
 - [x] Install Fabric.js and Zustand dependencies
-- [ ] Create Fabric.js canvas wrapper
-- [ ] Set up Zustand state management
-- [ ] Build InDesign-like 3-panel UI layout
-- [ ] Parse all spreads (currently only first)
-- [ ] Multi-page navigation
+- [x] Create Fabric.js canvas wrapper
+- [x] Set up Zustand state management
+- [x] Build InDesign-like 3-panel UI layout
+- [x] Parse all spreads (all 27+ spreads now loaded)
+- [x] Multi-page navigation
+- [ ] Integrate Fabric.js canvas into CanvasPanel
+- [ ] Add drag-drop file upload
 
 ### 📅 Upcoming Phases
 
@@ -159,8 +161,10 @@ npm run typecheck
 - [x] Dependencies installed (fabric@5.3.0, zustand@4.5.0)
 - [x] Canvas wrapper created (`/app/lib/canvas/fabricCanvas.ts`)
 - [x] State management setup (`/app/lib/state/editorStore.ts`)
-- [ ] UI layout built
-- [ ] Multi-page navigation working
+- [x] UI layout built (`/app/routes/editor.$id.tsx` with 3-panel InDesign-like design)
+- [x] Multi-page navigation working (keyboard shortcuts + UI controls)
+- [x] All spreads loaded (not just first one)
+- [ ] Canvas rendering with Fabric.js integration
 
 ---
 
