@@ -7,6 +7,7 @@ import path from 'path';
 import * as xml2js from 'xml2js';
 import { useEditorStore } from '~/lib/state/editorStore';
 import type { SpreadXML, SpreadElement } from '~/lib/interfaces/spreadInterfaces';
+import { CanvasPanel } from '~/components/editor/CanvasPanel';
 
 /**
  * Editor Route: Main IDML editor interface
@@ -361,17 +362,7 @@ export default function Editor() {
           </div>
 
           {/* Canvas Area */}
-          <div className="flex-1 overflow-auto flex items-center justify-center p-8">
-            <div className="bg-white rounded shadow-2xl">
-              <div className="p-8">
-                <p className="text-gray-500 text-center">
-                  Canvas will be rendered here
-                  <br />
-                  <span className="text-xs">(Phase 1 - Canvas components pending)</span>
-                </p>
-              </div>
-            </div>
-          </div>
+          <CanvasPanel />
         </main>
 
         {/* Right Panel - Properties */}

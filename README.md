@@ -164,7 +164,7 @@ npm run typecheck
 - [x] UI layout built (`/app/routes/editor.$id.tsx` with 3-panel InDesign-like design)
 - [x] Multi-page navigation working (keyboard shortcuts + UI controls)
 - [x] All spreads loaded (not just first one)
-- [ ] Canvas rendering with Fabric.js integration
+- [x] Canvas rendering with Fabric.js integration (`/app/components/editor/CanvasPanel.tsx`)
 
 ---
 
