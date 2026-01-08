@@ -8,6 +8,8 @@ import type {
   GroupElement,
   PolygonElement,
 } from '../interfaces/spreadInterfaces';
+import { IDMLTextFrame, createTextFrameFromIDML } from './textFrame';
+import type { StoryData } from '../textEditor/storyParser';
 
 /**
  * FabricCanvas: Wrapper for Fabric.js canvas that handles IDML to Fabric conversion
@@ -42,6 +44,7 @@ export interface Transform {
 export class FabricCanvas {
   private canvas: fabric.Canvas;
   private pointsToPixelsRatio = 0.75; // IDML points to pixels conversion
+  private storiesMap: Map<string, StoryData> = new Map(); // Store loaded stories
 
   constructor(canvasElement: HTMLCanvasElement, options?: FabricCanvasOptions) {
     this.canvas = new fabric.Canvas(canvasElement, {
@@ -50,6 +53,13 @@ export class FabricCanvas {
       backgroundColor: options?.backgroundColor || '#ffffff',
       selection: options?.selection !== undefined ? options.selection : true,
     });
+  }
+
+  /**
+   * Load stories data for text frames
+   */
+  setStories(stories: Map<string, StoryData>): void {
+    this.storiesMap = stories;
   }
 
   /**
@@ -304,30 +314,26 @@ export class FabricCanvas {
   /**
    * Create a Fabric TextFrame from IDML TextFrame element
    */
-  createTextFrame(frame: TextFrameElement): fabric.IText | null {
+  createTextFrame(frame: TextFrameElement): IDMLTextFrame | null {
     const attrs = frame.$;
     const transform = this.parseItemTransform(attrs.ItemTransform);
 
-    // For now, create a placeholder text object
-    // In Phase 2, we'll load actual text content from Story XML
-    const text = new fabric.IText('Text Frame (content loading...)', {
-      left: transform.left,
-      top: transform.top,
-      fontSize: 14,
-      fill: '#000000',
-      scaleX: transform.scaleX,
-      scaleY: transform.scaleY,
-      angle: transform.angle,
-      data: {
-        idmlType: 'TextFrame',
-        idmlId: attrs.Self,
-        parentStory: attrs.ParentStory,
-        contentType: attrs.ContentType,
-        originalTransform: attrs.ItemTransform,
-      },
-    });
+    // Get story data if available
+    const storyData = this.storiesMap.get(attrs.ParentStory);
 
-    return text;
+    // Create TextFrame with story data
+    const textFrame = createTextFrameFromIDML(
+      {
+        Self: attrs.Self,
+        ParentStory: attrs.ParentStory,
+        ItemTransform: attrs.ItemTransform,
+        ContentType: attrs.ContentType,
+      },
+      transform,
+      storyData
+    );
+
+    return textFrame;
   }
 
   /**
