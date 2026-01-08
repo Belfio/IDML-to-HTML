@@ -182,7 +182,20 @@ npm run typecheck
 - Style inheritance (resolve `<BasedOn>` chains)
 - Linked text frames (overflow handling)
 
-**Progress**: Not started
+**Progress**:
+- [ ] Parse Story XML files into structured data
+- [ ] Create custom TextFrame class extending Fabric IText
+- [ ] Implement character formatting UI (font, size, color, bold/italic)
+- [ ] Implement paragraph formatting UI (alignment, spacing, indents)
+- [ ] Load and parse Resources/Styles.xml
+- [ ] Build style manager with style inheritance resolution
+- [ ] Create TextPropertiesPanel component
+- [ ] Implement style application to text
+- [ ] Build story serializer (edited text → Story XML)
+- [ ] Add auto-save functionality for text edits
+- [ ] Handle linked text frames (overflow between frames)
+- [ ] Test text editing with multiple styles
+- [ ] Update E2E tests for text editing
 
 ---
 
@@ -207,7 +220,19 @@ npm run typecheck
 - Commercial fonts can't be redistributed
 - Font substitution may cause reflow
 
-**Progress**: Not started
+**Progress**:
+- [ ] Parse Resources/Graphic.xml for color definitions
+- [ ] Implement CMYK → RGB conversion algorithm
+- [ ] Build color manager with color lookup
+- [ ] Implement gradient fill rendering
+- [ ] Add stroke pattern support
+- [ ] Create font loader with CDN integration (Google Fonts/Adobe Fonts)
+- [ ] Build font substitution mapping system
+- [ ] Implement transform matrix decomposition
+- [ ] Apply colors to existing canvas elements
+- [ ] Apply transforms to all element types
+- [ ] Test with documents containing complex colors/transforms
+- [ ] Document color accuracy limitations
 
 ---
 
@@ -231,7 +256,21 @@ npm run typecheck
 - Transform updates on drag/resize
 - Parent-child transforms
 
-**Progress**: Not started
+**Progress**:
+- [ ] Build image uploader component
+- [ ] Create image upload API endpoint
+- [ ] Implement image replacement in Rectangle frames
+- [ ] Add drag handlers for all canvas objects
+- [ ] Add resize handlers with transform updates
+- [ ] Create element factory for new TextFrames
+- [ ] Create element factory for new Rectangles
+- [ ] Create element factory for new Lines
+- [ ] Implement group/ungroup operations
+- [ ] Add IDML ID generator with uniqueness checking
+- [ ] Build shape creation toolbar
+- [ ] Add snap-to-grid functionality
+- [ ] Test drag/resize with complex nested groups
+- [ ] Update E2E tests for image and layout editing
 
 ---
 
@@ -256,7 +295,21 @@ npm run typecheck
 - MasterPageTransform stacking
 - Sub-pixel precision
 
-**Progress**: Not started
+**Progress**:
+- [ ] Create LayersPanel component
+- [ ] Build layer manager for visibility/lock state
+- [ ] Parse MasterSpreads directory
+- [ ] Implement master page rendering
+- [ ] Build master page override system
+- [ ] Create margin guide renderer
+- [ ] Create column guide renderer
+- [ ] Create ruler guide renderer
+- [ ] Implement snap-to-guides functionality
+- [ ] Build unit converter (points/picas/inches/mm)
+- [ ] Create measurement input panel (X/Y/W/H)
+- [ ] Add smart guides (alignment hints)
+- [ ] Test with documents using master pages
+- [ ] Update E2E tests for advanced features
 
 ---
 
@@ -286,7 +339,21 @@ npm run typecheck
 - Round-trip test: Upload → Edit → Export → Re-upload
 - Open in InDesign verification
 
-**Progress**: Not started
+**Progress**:
+- [ ] Build Fabric → IDML element converter
+- [ ] Implement transform matrix composition (reverse of decomposition)
+- [ ] Create spread serializer (Fabric → Spread XML)
+- [ ] Enhance story serializer for full Story XML generation
+- [ ] Build style serializer for Styles.xml updates
+- [ ] Implement color serializer (RGB → CMYK conversion)
+- [ ] Create IDML packer (repack to ZIP format)
+- [ ] Preserve all IDML IDs and Self references
+- [ ] Preserve all optional attributes in metadata
+- [ ] Handle XML element ordering per IDML spec
+- [ ] Create save/export API endpoint
+- [ ] Build round-trip validation test
+- [ ] Test exported IDML opens in InDesign
+- [ ] Document known limitations and lossy conversions
 
 ---
 
@@ -309,7 +376,20 @@ npm run typecheck
 - CMYK colors in RGB PDF
 - HTML positioning precision
 
-**Progress**: Not started
+**Progress**:
+- [ ] Research PDF generation options (jsPDF vs Puppeteer)
+- [ ] Implement PDF generator with basic layout
+- [ ] Add font embedding to PDF (with licensing considerations)
+- [ ] Handle color conversion for PDF (CMYK → RGB)
+- [ ] Build HTML generator with semantic markup
+- [ ] Build CSS generator with absolute positioning
+- [ ] Package HTML/CSS/images/fonts into ZIP
+- [ ] Create export menu UI component
+- [ ] Add IDML download endpoint (from Phase 6)
+- [ ] Add PDF download endpoint
+- [ ] Add HTML ZIP download endpoint
+- [ ] Test all export formats with complex documents
+- [ ] Document export quality and limitations
 
 ---
 
@@ -335,7 +415,25 @@ npm run typecheck
 - Spread navigation: < 500ms
 - Text editing: < 16ms lag (60fps)
 
-**Progress**: Not started
+**Progress**:
+- [ ] Profile canvas rendering performance
+- [ ] Implement canvas optimizer (object pooling, dirty regions)
+- [ ] Add lazy loading for spreads (cache only 3 at a time)
+- [ ] Optimize Fabric.js rendering settings
+- [ ] Build centralized error handler
+- [ ] Add error boundaries to React components
+- [ ] Implement user-friendly error messages
+- [ ] Create editor workflow E2E tests
+- [ ] Create text editing E2E tests
+- [ ] Create image upload E2E tests
+- [ ] Create export functionality E2E tests
+- [ ] Build comprehensive round-trip test suite
+- [ ] Achieve 80%+ code coverage with unit tests
+- [ ] Write architecture documentation
+- [ ] Write API documentation
+- [ ] Write user guide documentation
+- [ ] Performance optimization based on profiling
+- [ ] Final QA and bug fixes
 
 ---
 
@@ -397,4 +495,4 @@ This is an active development project. See the plan file for detailed implementa
 
 **Last Updated**: January 8, 2026
 **Current Phase**: Phase 2 - Text Editing (PRIORITY)
-**Next Milestone**: Editable text frames with formatting
+**Next Milestone**: Parse Story XML files and create editable text frames

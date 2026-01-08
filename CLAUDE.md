@@ -143,6 +143,45 @@ Use TodoWrite tool to track active tasks:
 - Clean up stale todos
 
 **Keep todo list synchronized with README.md checkboxes**
+
+### README Task List Review Protocol ⚠️ CRITICAL
+
+**Before starting any new phase or significant work session:**
+
+1. **Review Current Phase Task List** in README.md
+   - Read through all unchecked tasks in current phase
+   - Verify each task is still relevant and makes sense
+   - Check if any tasks have been completed but not marked
+   - Identify any missing tasks based on work done
+
+2. **Validate Task Dependencies**
+   - Ensure tasks are in logical order
+   - Check if completed tasks from previous phases affect current tasks
+   - Verify technical approaches are still valid
+
+3. **Update Stale or Irrelevant Tasks**
+   - Remove tasks that are no longer needed
+   - Split overly broad tasks into smaller, actionable items
+   - Add newly discovered tasks
+   - Reword unclear task descriptions
+
+4. **Synchronize with Reality**
+   - If implementation diverged from plan, update task list to reflect actual approach
+   - Document architectural decisions that changed task requirements
+   - Add notes about technical challenges that spawned additional tasks
+
+5. **Cross-Reference with Code**
+   - Check if files mentioned in task list exist
+   - Verify completed tasks have corresponding code
+   - Identify gaps between plan and implementation
+
+**When**:
+- At the start of each phase
+- Before resuming work after a break
+- When blocked on a task
+- When discovering task list doesn't match reality
+
+**Why**: Task lists can become stale as implementation reveals new requirements, better approaches emerge, or assumptions prove incorrect. Regular review ensures the README remains the single source of truth.
 - **idml-specification.pdf**: PDF version of spec
 - **instructions.md**: Detailed project requirements and architecture documentation
 - **unpacked/**: Example of extracted IDML structure (reference for testing)
