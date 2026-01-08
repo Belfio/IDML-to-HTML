@@ -1,13 +1,16 @@
 import type { LoaderFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { useLoaderData, useNavigate } from '@remix-run/react';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { readFile, readdir } from 'fs/promises';
 import path from 'path';
 import * as xml2js from 'xml2js';
 import { useEditorStore } from '~/lib/state/editorStore';
 import type { SpreadXML, SpreadElement } from '~/lib/interfaces/spreadInterfaces';
 import { CanvasPanel } from '~/components/editor/CanvasPanel';
+import { TextPropertiesPanel } from '~/components/editor/TextPropertiesPanel';
+import { parseAllStories } from '~/lib/textEditor/storyParser';
+import type { StoryData } from '~/lib/textEditor/storyParser';
 
 /**
  * Editor Route: Main IDML editor interface
@@ -25,6 +28,7 @@ interface LoaderData {
   fileName: string;
   spreads: SpreadElement[];
   spreadFiles: string[];
+  stories: Array<[string, StoryData]>; // Serialized as array for JSON
   error?: string;
 }
 
@@ -73,11 +77,24 @@ export const loader: LoaderFunction = async ({ params }) => {
 
     console.log(`Successfully parsed ${spreads.length} spreads`);
 
+    // Parse all stories
+    const storiesDir = path.join(extractedDir, 'Stories');
+    const storyFiles = await readdir(storiesDir);
+    const storyIds = storyFiles
+      .filter(f => f.startsWith('Story_') && f.endsWith('.xml'))
+      .map(f => f.replace('Story_', '').replace('.xml', ''));
+
+    const storiesMap = await parseAllStories(storiesDir, storyIds);
+    const storiesArray = Array.from(storiesMap.entries());
+
+    console.log(`Successfully parsed ${storiesArray.length} stories`);
+
     return json<LoaderData>({
       uploadId: id,
       fileName: idmlFile,
-      spreads,
+      spreads: spreads as any,
       spreadFiles,
+      stories: storiesArray as any,
     });
   } catch (error) {
     console.error('Editor loader error:', error);
@@ -86,8 +103,9 @@ export const loader: LoaderFunction = async ({ params }) => {
         error: error instanceof Error ? error.message : 'Failed to load editor',
         uploadId: id,
         fileName: '',
-        spreads: [],
+        spreads: [] as any,
         spreadFiles: [],
+        stories: [] as any,
       },
       { status: 500 }
     );
@@ -102,6 +120,7 @@ export default function Editor() {
   const setUploadId = useEditorStore((state) => state.setUploadId);
   const setFileName = useEditorStore((state) => state.setFileName);
   const setSpreads = useEditorStore((state) => state.setSpreads);
+  const setStories = useEditorStore((state) => state.setStories);
   const setCurrentSpreadIndex = useEditorStore((state) => state.setCurrentSpreadIndex);
   const currentSpreadIndex = useEditorStore((state) => state.currentSpreadIndex);
   const spreadCount = useEditorStore((state) => state.getSpreadCount());
@@ -111,6 +130,10 @@ export default function Editor() {
   const redo = useEditorStore((state) => state.redo);
   const canUndo = useEditorStore((state) => state.canUndo());
   const canRedo = useEditorStore((state) => state.canRedo());
+  const canvasInstance = useEditorStore((state) => state.canvasInstance);
+
+  // Track selected object
+  const [selectedObject, setSelectedObject] = useState<fabric.Object | null>(null);
 
   // Initialize editor state on mount
   useEffect(() => {
@@ -120,13 +143,45 @@ export default function Editor() {
       setSpreads(data.spreads);
       setCurrentSpreadIndex(0);
 
+      // Load stories
+      const storiesMap: Record<string, any> = {};
+      data.stories.forEach(([id, story]) => {
+        storiesMap[id] = story;
+      });
+      setStories(storiesMap);
+
       console.log('Editor initialized with:', {
         uploadId: data.uploadId,
         fileName: data.fileName,
         spreadCount: data.spreads.length,
+        storyCount: data.stories.length,
       });
     }
-  }, [data, setUploadId, setFileName, setSpreads, setCurrentSpreadIndex]);
+  }, [data, setUploadId, setFileName, setSpreads, setStories, setCurrentSpreadIndex]);
+
+  // Listen for canvas selection changes
+  useEffect(() => {
+    if (!canvasInstance) return;
+
+    const handleSelection = (e: any) => {
+      const selected = e.selected?.[0] || null;
+      setSelectedObject(selected);
+    };
+
+    const handleDeselection = () => {
+      setSelectedObject(null);
+    };
+
+    canvasInstance.on('selection:created', handleSelection);
+    canvasInstance.on('selection:updated', handleSelection);
+    canvasInstance.on('selection:cleared', handleDeselection);
+
+    return () => {
+      canvasInstance.off('selection:created', handleSelection);
+      canvasInstance.off('selection:updated', handleSelection);
+      canvasInstance.off('selection:cleared', handleDeselection);
+    };
+  }, [canvasInstance]);
 
   // Keyboard shortcuts
   const handleKeyDown = useCallback(
@@ -368,10 +423,14 @@ export default function Editor() {
         {/* Right Panel - Properties */}
         <aside className="w-64 bg-gray-800 border-l border-gray-700 p-4 overflow-y-auto">
           <h2 className="text-sm font-semibold mb-4">Properties</h2>
-          <div className="text-xs text-gray-400">
-            <p>No object selected</p>
-            <p className="mt-4">Select an object to view properties</p>
-          </div>
+          {selectedObject ? (
+            <TextPropertiesPanel selectedObject={selectedObject} />
+          ) : (
+            <div className="text-xs text-gray-400">
+              <p>No object selected</p>
+              <p className="mt-4">Select an object to view properties</p>
+            </div>
+          )}
         </aside>
       </div>
 
