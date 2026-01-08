@@ -8,3 +8,10 @@ node_modules
 .sst
 
 app/assets/extracted.DS_Store
+
+# Uploads
+uploads/
+*.idml
+parsed-spread.html
+test-report.md
+sst-dev.log

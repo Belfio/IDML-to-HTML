@@ -1,4 +1,4 @@
-// import unzip from "./unzip";
+import unzip from "./unzip";
 import path from "path";
 import fs from "fs";
 import { parseSpreadToHTML } from "./spreadParser";
@@ -7,7 +7,7 @@ const processIdml = async (idmlUrl: string) => {
   console.log("loaded");
   // first task we need to unzip the idml
   const extractFolder = path.dirname(idmlUrl) + "/extracted";
-  // await unzip(idmlUrl, extractFolder);
+  await unzip(idmlUrl, extractFolder);
 
   // check files
   const folderList = fs.readdirSync(extractFolder);
