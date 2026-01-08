@@ -11,6 +11,8 @@ import { CanvasPanel } from '~/components/editor/CanvasPanel';
 import { TextPropertiesPanel } from '~/components/editor/TextPropertiesPanel';
 import { parseAllStories } from '~/lib/textEditor/storyParser';
 import type { StoryData } from '~/lib/textEditor/storyParser';
+import { ColorManager } from '~/lib/colors/colorManager';
+import type { IDMLColor } from '~/lib/colors/colorManager';
 
 /**
  * Editor Route: Main IDML editor interface
@@ -29,6 +31,7 @@ interface LoaderData {
   spreads: SpreadElement[];
   spreadFiles: string[];
   stories: Array<[string, StoryData]>; // Serialized as array for JSON
+  colors: IDMLColor[]; // Parsed colors
   error?: string;
 }
 
@@ -89,12 +92,21 @@ export const loader: LoaderFunction = async ({ params }) => {
 
     console.log(`Successfully parsed ${storiesArray.length} stories`);
 
+    // Parse colors from Graphic.xml
+    const graphicPath = path.join(extractedDir, 'Resources', 'Graphic.xml');
+    const colorManager = new ColorManager();
+    await colorManager.loadFromGraphicXML(graphicPath);
+    const colors = colorManager.getAllColors();
+
+    console.log(`Successfully parsed ${colors.length} colors`);
+
     return json<LoaderData>({
       uploadId: id,
       fileName: idmlFile,
       spreads: spreads as any,
       spreadFiles,
       stories: storiesArray as any,
+      colors,
     });
   } catch (error) {
     console.error('Editor loader error:', error);
@@ -106,6 +118,7 @@ export const loader: LoaderFunction = async ({ params }) => {
         spreads: [] as any,
         spreadFiles: [],
         stories: [] as any,
+        colors: [],
       },
       { status: 500 }
     );
@@ -121,6 +134,7 @@ export default function Editor() {
   const setFileName = useEditorStore((state) => state.setFileName);
   const setSpreads = useEditorStore((state) => state.setSpreads);
   const setStories = useEditorStore((state) => state.setStories);
+  const setColors = useEditorStore((state) => state.setColors);
   const setCurrentSpreadIndex = useEditorStore((state) => state.setCurrentSpreadIndex);
   const currentSpreadIndex = useEditorStore((state) => state.currentSpreadIndex);
   const spreadCount = useEditorStore((state) => state.getSpreadCount());
@@ -150,14 +164,18 @@ export default function Editor() {
       });
       setStories(storiesMap);
 
+      // Load colors
+      setColors(data.colors);
+
       console.log('Editor initialized with:', {
         uploadId: data.uploadId,
         fileName: data.fileName,
         spreadCount: data.spreads.length,
         storyCount: data.stories.length,
+        colorCount: data.colors.length,
       });
     }
-  }, [data, setUploadId, setFileName, setSpreads, setStories, setCurrentSpreadIndex]);
+  }, [data, setUploadId, setFileName, setSpreads, setStories, setColors, setCurrentSpreadIndex]);
 
   // Listen for canvas selection changes
   useEffect(() => {

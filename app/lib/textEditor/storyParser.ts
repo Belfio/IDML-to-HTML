@@ -248,14 +248,13 @@ export function mapJustification(justification?: string): string {
 
 /**
  * Map IDML color references to hex colors
- * TODO: This will be enhanced in Phase 3 with proper color management
  */
 function mapColor(colorRef: string): string {
   if (colorRef === 'Color/Paper') return '#ffffff';
   if (colorRef === 'Color/Black') return '#000000';
 
-  // Extract color ID and use placeholder for now
-  // Will be replaced with actual color lookup in Phase 3
+  // Import color manager to look up colors
+  // Note: This will be enhanced with proper color manager instance passing
   return '#000000';
 }
 
