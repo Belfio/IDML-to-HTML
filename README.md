@@ -10,16 +10,6 @@ Transform InDesign documents into editable, web-based content. Enable users to u
 
 ### ✅ Completed
 
-### ✅ Completed
-
-- [x] Upload system with file validation (50MB max, .idml only)
-- [x] IDML extraction (unzip to `uploads/{uuid}/extracted/`)
-- [x] XML parsing for Spreads and Stories
-- [x] Basic HTML preview rendering
-- [x] TypeScript interfaces for all IDML structures
-- [x] 10 passing E2E tests (Playwright)
-- [x] Drag-and-drop file upload
-
 **Phase 1: Foundation & Architecture** ✅ **COMPLETED**
 - [x] Install Fabric.js and Zustand dependencies
 - [x] Create Fabric.js canvas wrapper (`/app/lib/canvas/fabricCanvas.ts`)
