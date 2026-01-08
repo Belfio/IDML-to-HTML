@@ -24,6 +24,7 @@ export function CanvasPanel() {
   const currentSpreadIndex = useEditorStore((state) => state.currentSpreadIndex);
   const setCanvasInstance = useEditorStore((state) => state.setCanvasInstance);
   const zoom = useEditorStore((state) => state.zoom);
+  const stories = useEditorStore((state) => state.stories);
 
   // Initialize canvas on mount
   useEffect(() => {
@@ -75,12 +76,19 @@ export function CanvasPanel() {
 
     console.log(`Loading spread ${currentSpreadIndex} onto canvas...`);
 
+    // Convert stories Record to Map
+    const storiesMap = new Map(Object.entries(stories));
+
     // Load spread asynchronously
     (async () => {
       try {
         setIsLoading(true);
+
+        // Set stories on canvas before loading spread
+        fabricCanvasRef.current!.setStories(storiesMap);
+
         await fabricCanvasRef.current!.loadSpread(currentSpread);
-        console.log(`Spread ${currentSpreadIndex} loaded successfully`);
+        console.log(`Spread ${currentSpreadIndex} loaded successfully with ${storiesMap.size} stories`);
         setIsLoading(false);
       } catch (err) {
         console.error('Failed to load spread:', err);
@@ -88,7 +96,7 @@ export function CanvasPanel() {
         setIsLoading(false);
       }
     })();
-  }, [currentSpreadIndex, getCurrentSpread]);
+  }, [currentSpreadIndex, getCurrentSpread, stories]);
 
   // Apply zoom changes
   useEffect(() => {
