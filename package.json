@@ -16,6 +16,8 @@
     "@remix-run/node": "^2.13.1",
     "@remix-run/react": "^2.13.1",
     "@remix-run/serve": "^2.13.1",
+    "@types/fabric": "^5.3.10",
+    "fabric": "^5.5.2",
     "fast-xml-parser": "^4.5.0",
     "isbot": "^4.1.0",
     "jszip": "^3.10.1",
@@ -25,7 +27,8 @@
     "unzip": "^0.1.11",
     "unzipper": "^0.12.3",
     "xml2js": "^0.6.2",
-    "xmldom": "^0.6.0"
+    "xmldom": "^0.6.0",
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

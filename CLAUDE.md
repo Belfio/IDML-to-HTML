@@ -98,6 +98,51 @@ IDML files are ZIP archives containing:
 
 ### Reference Material
 - **IDML_Specification.txt**: Full Adobe IDML specification
+- **README.md**: Living project plan with phase-by-phase progress tracking
+- **Plan File**: Detailed implementation plan at `~/.claude/plans/majestic-kindling-pebble.md`
+
+## Development Protocols
+
+### README.md Update Protocol ⚠️ CRITICAL
+
+**README.md must be updated rigorously throughout development**
+
+When completing tasks:
+1. ✅ Update progress checkboxes in "Current Status" section
+2. ✅ Mark phase tasks as complete (`[ ]` → `[x]`)
+3. ✅ Update "Current Phase" and "Next Milestone" at bottom
+4. ✅ Document any learnings or challenges encountered
+5. ✅ Keep "Last Updated" timestamp current
+
+**Why**: README.md serves as the single source of truth for project progress. It allows anyone (including future Claude instances) to understand exactly where the project stands.
+
+### Commit & Push Protocol ⚠️ CRITICAL
+
+**Commit and push after EACH completed task**
+
+Workflow:
+1. Complete a task from the todo list
+2. Update README.md progress checkboxes
+3. Commit with descriptive message: `git commit -m "feat: component - description"`
+4. Push to remote: `git push`
+
+**Commit Message Format**:
+- `feat: canvas wrapper - initial Fabric.js integration`
+- `feat: editor route - 3-panel layout complete`
+- `fix: transform math - correct matrix decomposition`
+- `docs: readme - update Phase 1 progress`
+
+**Why**: Atomic commits ensure progress is saved and allows easy rollback if needed. Each commit represents a complete, testable unit of work.
+
+### Todo List Management
+
+Use TodoWrite tool to track active tasks:
+- Mark tasks `in_progress` when starting
+- Mark tasks `completed` when done (immediately!)
+- Add new tasks as they emerge
+- Clean up stale todos
+
+**Keep todo list synchronized with README.md checkboxes**
 - **idml-specification.pdf**: PDF version of spec
 - **instructions.md**: Detailed project requirements and architecture documentation
 - **unpacked/**: Example of extracted IDML structure (reference for testing)
