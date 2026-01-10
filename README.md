@@ -67,9 +67,18 @@ Transform InDesign documents into editable, web-based content. Enable users to u
 
 ### 📅 Current Phase
 
-- **Phase 8**: Polish & Testing - IN PROGRESS
+**Phase 8: Polish & Testing** ⏳ **IN PROGRESS**
+- [x] Add error boundaries to React components
+- [x] Canvas performance optimizations (60fps targeting)
+- [x] Implement throttled rendering during interactions
+- [x] Add viewport culling for offscreen objects
+- [x] Create spread cache manager (lazy loading)
+- [ ] Build comprehensive E2E test suite
+- [ ] Achieve 80%+ code coverage
+- [ ] Performance profiling and optimization
+- [ ] Complete documentation
 
-**Project Status**: 7 of 8 phases complete (87.5%)
+**Project Status**: 7.5 of 8 phases complete (94%)
 
 ---
 
@@ -463,13 +472,16 @@ npm run typecheck
 - Text editing: < 16ms lag (60fps)
 
 **Progress**:
-- [ ] Profile canvas rendering performance
-- [ ] Implement canvas optimizer (object pooling, dirty regions)
-- [ ] Add lazy loading for spreads (cache only 3 at a time)
-- [ ] Optimize Fabric.js rendering settings
-- [ ] Build centralized error handler
-- [ ] Add error boundaries to React components
-- [ ] Implement user-friendly error messages
+- [x] Profile canvas rendering performance
+- [x] Implement canvas optimizer (object caching, viewport culling)
+- [x] Add lazy loading for spreads (SpreadCache with LRU eviction)
+- [x] Optimize Fabric.js rendering settings
+- [x] Build ErrorBoundary component for React errors
+- [x] Add error boundaries to root component
+- [x] Implement user-friendly error messages with reload/back options
+- [x] Throttled rendering during interactions (30fps during drag)
+- [x] Debounced canvas updates
+- [x] Performance measurement utilities
 - [ ] Create editor workflow E2E tests
 - [ ] Create text editing E2E tests
 - [ ] Create image upload E2E tests
@@ -479,7 +491,6 @@ npm run typecheck
 - [ ] Write architecture documentation
 - [ ] Write API documentation
 - [ ] Write user guide documentation
-- [ ] Performance optimization based on profiling
 - [ ] Final QA and bug fixes
 
 ---
@@ -519,12 +530,20 @@ npm run typecheck
 
 ---
 
-## 🐛 Known Issues
+## 🐛 Known Issues & Limitations
 
-- Only first spread renders (27 spreads available, need multi-page nav)
-- Visual rendering basic (debug borders only, no colors/fonts)
-- No editing capabilities yet (view-only)
-- Export buttons are placeholders
+**Resolved:**
+- ~~Only first spread renders~~ → All spreads now load with multi-page navigation
+- ~~Visual rendering basic~~ → Full color rendering with CMYK → RGB conversion
+- ~~No editing capabilities~~ → Full text and layout editing implemented
+- ~~Export buttons are placeholders~~ → IDML and HTML exports working
+
+**Current Limitations:**
+- PDF export not yet implemented (planned for future version)
+- CMYK → RGB color conversion is approximate (not color-managed)
+- Commercial fonts require substitution (licensing restrictions)
+- Master pages and guides not fully implemented
+- Style inheritance from Styles.xml partially implemented
 
 ---
 
@@ -541,5 +560,5 @@ This is an active development project. See the plan file for detailed implementa
 ---
 
 **Last Updated**: January 10, 2026
-**Current Phase**: Phase 4 - Image & Layout Editing
-**Next Milestone**: Drag and resize functionality for all canvas objects
+**Current Phase**: Phase 8 - Polish & Testing (94% complete)
+**Next Milestone**: E2E testing and final documentation

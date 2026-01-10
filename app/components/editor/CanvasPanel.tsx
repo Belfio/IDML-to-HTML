@@ -12,6 +12,11 @@ import {
   createNewEllipse,
   addElementToCanvas,
 } from '~/lib/canvas/elementFactory';
+import {
+  enableCanvasOptimizations,
+  throttleRendering,
+  cullOffscreenObjects,
+} from '~/lib/performance/canvasOptimizer';
 
 /**
  * CanvasPanel: Fabric.js canvas integration component
@@ -64,10 +69,20 @@ export function CanvasPanel({ onCanvasReady }: CanvasPanelProps = {}) {
       fabricCanvasRef.current = fabricCanvas;
 
       // Store canvas instance in Zustand
-      setCanvasInstance(fabricCanvas.getCanvas());
+      const canvas = fabricCanvas.getCanvas();
+      setCanvasInstance(canvas);
 
-      console.log('Fabric canvas initialized');
+      // Enable performance optimizations
+      enableCanvasOptimizations(canvas);
+
+      // Set up throttled rendering during interactions
+      const cleanupThrottle = throttleRendering(canvas, 30); // 30fps during drag
+
+      console.log('Fabric canvas initialized with optimizations');
       setIsLoading(false);
+
+      // Store cleanup function for throttling
+      (canvas as any)._cleanupThrottle = cleanupThrottle;
     } catch (err) {
       console.error('Failed to initialize canvas:', err);
       setError(err instanceof Error ? err.message : 'Failed to initialize canvas');
@@ -78,6 +93,13 @@ export function CanvasPanel({ onCanvasReady }: CanvasPanelProps = {}) {
     return () => {
       if (fabricCanvasRef.current) {
         console.log('Disposing Fabric canvas...');
+
+        // Cleanup throttle
+        const canvas = fabricCanvasRef.current.getCanvas();
+        if ((canvas as any)._cleanupThrottle) {
+          (canvas as any)._cleanupThrottle();
+        }
+
         fabricCanvasRef.current.dispose();
         fabricCanvasRef.current = null;
       }
@@ -125,6 +147,10 @@ export function CanvasPanel({ onCanvasReady }: CanvasPanelProps = {}) {
 
     const canvas = fabricCanvasRef.current.getCanvas();
     canvas.setZoom(zoom);
+
+    // Cull offscreen objects before rendering
+    cullOffscreenObjects(canvas);
+
     canvas.renderAll();
   }, [zoom]);
 
