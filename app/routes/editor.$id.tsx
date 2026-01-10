@@ -9,6 +9,7 @@ import { useEditorStore } from '~/lib/state/editorStore';
 import type { SpreadXML, SpreadElement } from '~/lib/interfaces/spreadInterfaces';
 import { CanvasPanel } from '~/components/editor/CanvasPanel';
 import { TextPropertiesPanel } from '~/components/editor/TextPropertiesPanel';
+import { ShapeTools } from '~/components/editor/ShapeTools';
 import { parseAllStories } from '~/lib/textEditor/storyParser';
 import type { StoryData } from '~/lib/textEditor/storyParser';
 import { ColorManager } from '~/lib/colors/colorManager';
@@ -148,6 +149,7 @@ export default function Editor() {
 
   // Track selected object
   const [selectedObject, setSelectedObject] = useState<fabric.Object | null>(null);
+  const [createElementHandler, setCreateElementHandler] = useState<((type: 'textframe' | 'rectangle' | 'line' | 'ellipse') => void) | null>(null);
 
   // Initialize editor state on mount
   useEffect(() => {
@@ -434,8 +436,15 @@ export default function Editor() {
             </div>
           </div>
 
+          {/* Shape Creation Toolbar */}
+          {createElementHandler && (
+            <ShapeTools onCreateElement={createElementHandler} />
+          )}
+
           {/* Canvas Area */}
-          <CanvasPanel />
+          <CanvasPanel
+            onCanvasReady={(handler) => setCreateElementHandler(() => handler)}
+          />
         </main>
 
         {/* Right Panel - Properties */}

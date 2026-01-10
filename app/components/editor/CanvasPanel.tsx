@@ -5,6 +5,13 @@ import { IDMLTextFrame } from '~/lib/canvas/textFrame';
 import { updateStoryFromText, serializeStoryToXML } from '~/lib/textEditor/storySerializer';
 import { useFetcher } from '@remix-run/react';
 import { getObjectModificationInfo } from '~/lib/canvas/transformHandler';
+import {
+  createNewTextFrame,
+  createNewRectangle,
+  createNewLine,
+  createNewEllipse,
+  addElementToCanvas,
+} from '~/lib/canvas/elementFactory';
 
 /**
  * CanvasPanel: Fabric.js canvas integration component
@@ -15,9 +22,14 @@ import { getObjectModificationInfo } from '~/lib/canvas/transformHandler';
  * - Load current spread onto canvas
  * - Handle spread changes
  * - Sync canvas instance with store
+ * - Handle element creation
  */
 
-export function CanvasPanel() {
+interface CanvasPanelProps {
+  onCanvasReady?: (createElementHandler: (type: 'textframe' | 'rectangle' | 'line' | 'ellipse') => void) => void;
+}
+
+export function CanvasPanel({ onCanvasReady }: CanvasPanelProps = {}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvasRef = useRef<FabricCanvas | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -115,6 +127,46 @@ export function CanvasPanel() {
     canvas.setZoom(zoom);
     canvas.renderAll();
   }, [zoom]);
+
+  // Element creation handler
+  const handleCreateElement = (type: 'textframe' | 'rectangle' | 'line' | 'ellipse') => {
+    if (!fabricCanvasRef.current) {
+      console.warn('Canvas not initialized');
+      return;
+    }
+
+    const canvas = fabricCanvasRef.current.getCanvas();
+
+    let element: fabric.Object;
+
+    switch (type) {
+      case 'textframe':
+        element = createNewTextFrame(canvas);
+        break;
+      case 'rectangle':
+        element = createNewRectangle(canvas);
+        break;
+      case 'line':
+        element = createNewLine(canvas);
+        break;
+      case 'ellipse':
+        element = createNewEllipse(canvas);
+        break;
+      default:
+        console.warn(`Unknown element type: ${type}`);
+        return;
+    }
+
+    // Add to canvas
+    addElementToCanvas(canvas, element);
+  };
+
+  // Expose element creation handler to parent
+  useEffect(() => {
+    if (onCanvasReady && fabricCanvasRef.current) {
+      onCanvasReady(handleCreateElement);
+    }
+  }, [onCanvasReady, fabricCanvasRef.current]);
 
   // Auto-save functionality
   useEffect(() => {
