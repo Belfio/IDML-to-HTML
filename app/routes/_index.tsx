@@ -112,6 +112,8 @@ export default function Index() {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
+  console.log('[UPLOAD] Page rendered, actionData:', actionData);
+
   // Drag and drop handlers
   const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -134,13 +136,18 @@ export default function Index() {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
+    console.log('[UPLOAD] File dropped');
 
     const files = e.dataTransfer.files;
+    console.log('[UPLOAD] Files in drop:', files.length);
+
     if (files && files.length > 0) {
       const file = files[0];
+      console.log('[UPLOAD] Processing file:', file.name, file.size, 'bytes');
 
       // Validate file type
       if (!file.name.endsWith('.idml')) {
+        console.error('[UPLOAD] Invalid file type:', file.name);
         alert('Please upload a valid IDML file');
         return;
       }
@@ -148,9 +155,12 @@ export default function Index() {
       // Validate file size (50MB)
       const maxSize = 50 * 1024 * 1024;
       if (file.size > maxSize) {
+        console.error('[UPLOAD] File too large:', file.size);
         alert('File too large. Maximum size is 50MB.');
         return;
       }
+
+      console.log('[UPLOAD] File validation passed');
 
       // Update file input and submit
       if (fileInputRef.current) {
@@ -162,6 +172,7 @@ export default function Index() {
         // Create FormData and submit
         const formData = new FormData();
         formData.append('idmlFile', file);
+        console.log('[UPLOAD] Submitting via drag-drop...');
         submit(formData, { method: 'post', encType: 'multipart/form-data' });
       }
     }
@@ -169,13 +180,32 @@ export default function Index() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    console.log('[UPLOAD] File input changed:', file?.name, file?.size);
     if (file) {
       setSelectedFileName(file.name);
+      console.log('[UPLOAD] File selected:', file.name);
     }
   };
 
   const handleDropZoneClick = () => {
+    console.log('[UPLOAD] Drop zone clicked, opening file picker');
     fileInputRef.current?.click();
+  };
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    console.log('[UPLOAD] Form submit button clicked');
+    const formData = new FormData(e.currentTarget);
+    const file = formData.get('idmlFile') as File;
+    console.log('[UPLOAD] Form file:', file?.name, file?.size);
+
+    if (!file || file.size === 0) {
+      console.error('[UPLOAD] No file selected in form!');
+      e.preventDefault();
+      alert('Please select an IDML file first');
+      return;
+    }
+
+    console.log('[UPLOAD] Form submission proceeding...');
   };
 
   return (
@@ -183,7 +213,7 @@ export default function Index() {
       <h1 className="text-3xl font-bold mb-6">Upload IDML File</h1>
 
       <div className="bg-white shadow-md rounded-lg p-6">
-        <Form method="post" encType="multipart/form-data" className="space-y-4">
+        <Form method="post" encType="multipart/form-data" className="space-y-4" onSubmit={handleFormSubmit}>
           {/* Drag and Drop Zone */}
           <div
             onDragEnter={handleDragEnter}
