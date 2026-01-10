@@ -10,6 +10,7 @@ import type { SpreadXML, SpreadElement } from '~/lib/interfaces/spreadInterfaces
 import { CanvasPanel } from '~/components/editor/CanvasPanel';
 import { TextPropertiesPanel } from '~/components/editor/TextPropertiesPanel';
 import { ShapeTools } from '~/components/editor/ShapeTools';
+import { ExportMenu } from '~/components/editor/ExportMenu';
 import { parseAllStories } from '~/lib/textEditor/storyParser';
 import type { StoryData } from '~/lib/textEditor/storyParser';
 import { ColorManager } from '~/lib/colors/colorManager';
@@ -386,9 +387,11 @@ export default function Editor() {
             Redo
           </button>
           <div className="w-px h-6 bg-gray-700 mx-2" />
-          <button className="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded">
-            Export
-          </button>
+          <ExportMenu
+            uploadId={data.uploadId}
+            canvasInstance={canvasInstance}
+            fileName={data.fileName}
+          />
         </div>
       </header>
 
