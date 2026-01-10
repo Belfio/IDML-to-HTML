@@ -324,8 +324,10 @@ npm run typecheck
 - Sub-pixel precision
 
 **Progress**:
-- [ ] Create LayersPanel component
-- [ ] Build layer manager for visibility/lock state
+- [x] Create LayersPanel component with visibility/lock toggles
+- [x] Build layer manager for visibility/lock state
+- [x] Add drag-and-drop layer reordering
+- [x] Color-coded layer identification
 - [ ] Parse MasterSpreads directory
 - [ ] Implement master page rendering
 - [ ] Build master page override system
