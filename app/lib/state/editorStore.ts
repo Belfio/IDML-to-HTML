@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import type { SpreadElement } from '../interfaces/spreadInterfaces';
 import type { fabric } from 'fabric';
+import type { StoryData } from '../textEditor/storyParser';
+import type { IDMLColor } from '../colors/colorManager';
 
 /**
  * EditorStore: Central state management for IDML editor
@@ -13,23 +15,10 @@ import type { fabric } from 'fabric';
  * - Sync state between canvas and UI
  */
 
-export interface Story {
-  id: string;
-  content: string;
-  // Will be expanded in Phase 2 with full story XML structure
-}
-
 export interface Style {
   id: string;
   name: string;
   properties: Record<string, any>;
-}
-
-export interface Color {
-  id: string;
-  name: string;
-  model: 'RGB' | 'CMYK' | 'LAB';
-  values: number[];
 }
 
 export interface HistoryEntry {
@@ -43,9 +32,9 @@ export interface EditorState {
   uploadId: string | null;
   fileName: string | null;
   spreads: SpreadElement[];
-  stories: Record<string, Story>;
+  stories: Record<string, StoryData>;
   styles: Style[];
-  colors: Color[];
+  colors: IDMLColor[];
 
   // Current state
   currentSpreadIndex: number;
@@ -70,9 +59,9 @@ export interface EditorState {
   setUploadId: (uploadId: string) => void;
   setFileName: (fileName: string) => void;
   setSpreads: (spreads: SpreadElement[]) => void;
-  setStories: (stories: Record<string, Story>) => void;
+  setStories: (stories: Record<string, StoryData>) => void;
   setStyles: (styles: Style[]) => void;
-  setColors: (colors: Color[]) => void;
+  setColors: (colors: IDMLColor[]) => void;
 
   setCurrentSpreadIndex: (index: number) => void;
   setSelectedObjectIds: (ids: string[]) => void;

@@ -11,6 +11,11 @@ import type {
 import { IDMLTextFrame, createTextFrameFromIDML } from './textFrame';
 import type { StoryData } from '../textEditor/storyParser';
 import type { IDMLColor } from '../colors/colorManager';
+import {
+  setupTransformTracking,
+  enableObjectControls,
+  isObjectLocked,
+} from './transformHandler';
 
 /**
  * FabricCanvas: Wrapper for Fabric.js canvas that handles IDML to Fabric conversion
@@ -55,6 +60,9 @@ export class FabricCanvas {
       backgroundColor: options?.backgroundColor || '#ffffff',
       selection: options?.selection !== undefined ? options.selection : true,
     });
+
+    // Setup transform tracking for drag/resize/rotate operations
+    setupTransformTracking(this.canvas, this.pointsToPixelsRatio);
   }
 
   /**
@@ -357,6 +365,18 @@ export class FabricCanvas {
       storyData
     );
 
+    // Enable controls (drag/resize/rotate)
+    const locked = attrs.Locked === true;
+    enableObjectControls(textFrame, {
+      selectable: !locked,
+      hasControls: !locked,
+      lockMovementX: locked,
+      lockMovementY: locked,
+      lockRotation: locked,
+      lockScalingX: locked,
+      lockScalingY: locked,
+    });
+
     return textFrame;
   }
 
@@ -394,6 +414,18 @@ export class FabricCanvas {
       },
     });
 
+    // Enable controls (drag/resize/rotate)
+    const locked = attrs.Locked === true;
+    enableObjectControls(fabricRect, {
+      selectable: !locked,
+      hasControls: !locked,
+      lockMovementX: locked,
+      lockMovementY: locked,
+      lockRotation: locked,
+      lockScalingX: locked,
+      lockScalingY: locked,
+    });
+
     // TODO: Handle images in Phase 4
     if (rect.Image) {
       console.log('Rectangle has image - will handle in Phase 4');
@@ -429,6 +461,18 @@ export class FabricCanvas {
         layer: attrs.ItemLayer,
         originalTransform: attrs.ItemTransform,
       },
+    });
+
+    // Enable controls (drag/resize/rotate)
+    const locked = attrs.Locked === true;
+    enableObjectControls(fabricLine, {
+      selectable: !locked,
+      hasControls: !locked,
+      lockMovementX: locked,
+      lockMovementY: locked,
+      lockRotation: locked,
+      lockScalingX: locked,
+      lockScalingY: locked,
     });
 
     return fabricLine;
@@ -483,6 +527,18 @@ export class FabricCanvas {
       },
     });
 
+    // Enable controls (drag/resize/rotate)
+    const locked = attrs.Locked === true;
+    enableObjectControls(fabricGroup, {
+      selectable: !locked,
+      hasControls: !locked,
+      lockMovementX: locked,
+      lockMovementY: locked,
+      lockRotation: locked,
+      lockScalingX: locked,
+      lockScalingY: locked,
+    });
+
     return fabricGroup;
   }
 
@@ -518,6 +574,18 @@ export class FabricCanvas {
         layer: attrs.ItemLayer,
         originalTransform: attrs.ItemTransform,
       },
+    });
+
+    // Enable controls (drag/resize/rotate)
+    const locked = attrs.Locked === true;
+    enableObjectControls(fabricPolygon, {
+      selectable: !locked,
+      hasControls: !locked,
+      lockMovementX: locked,
+      lockMovementY: locked,
+      lockRotation: locked,
+      lockScalingX: locked,
+      lockScalingY: locked,
     });
 
     return fabricPolygon;

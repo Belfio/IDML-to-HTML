@@ -92,6 +92,10 @@ export interface MultiStateElement {
   $: MultiStateObjectAttributes;
 }
 
+export interface PolygonElement {
+  $: PolygonAttributes;
+}
+
 export interface ImageElement {
   $: {
     ItemTransform: string;
@@ -133,6 +137,9 @@ export interface TextFrameAttributes {
   ParentStory: string;
   ContentType: string;
   ItemTransform: string;
+  Visible?: boolean;
+  Locked?: boolean;
+  ItemLayer?: string;
 }
 
 export interface RectangleAttributes {
@@ -158,6 +165,8 @@ export interface GraphicLineAttributes {
   LeftLineEnd?: string;
   ItemTransform: string;
   ItemLayer: string;
+  Visible?: boolean;
+  Locked?: boolean;
 }
 
 export interface GroupAttributes {
