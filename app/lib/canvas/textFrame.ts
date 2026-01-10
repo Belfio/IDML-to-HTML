@@ -1,6 +1,6 @@
 import { fabric } from 'fabric';
-import type { StoryData, CharacterRangeData } from '../textEditor/storyParser';
-import { storyToPlainText, getCharacterStyles, mapJustification } from '../textEditor/storyParser';
+import type { StoryData, CharacterRangeData } from '../textEditor/storyParser.server';
+import { storyToPlainText, getCharacterStyles, mapJustification } from '../textEditor/storyUtils';
 
 /**
  * Custom TextFrame class extending Fabric IText

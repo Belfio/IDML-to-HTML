@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import type { SpreadElement } from '../interfaces/spreadInterfaces';
 import type { fabric } from 'fabric';
-import type { StoryData } from '../textEditor/storyParser';
+import type { StoryData } from '../textEditor/storyParser.server';
 import type { IDMLColor } from '../colors/colorManager';
 
 /**

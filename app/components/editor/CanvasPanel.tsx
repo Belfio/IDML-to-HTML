@@ -108,11 +108,15 @@ export function CanvasPanel({ onCanvasReady }: CanvasPanelProps = {}) {
 
   // Load spread onto canvas when it changes
   useEffect(() => {
-    if (!fabricCanvasRef.current) return;
+    if (!fabricCanvasRef.current) {
+      console.log('Skipping spread load - canvas not initialized');
+      return;
+    }
 
     const currentSpread = getCurrentSpread();
     if (!currentSpread) {
-      console.log('No spread to load');
+      console.log('No spread to load - spreads array may be empty');
+      setIsLoading(false); // Make sure to clear loading state
       return;
     }
 
@@ -139,7 +143,9 @@ export function CanvasPanel({ onCanvasReady }: CanvasPanelProps = {}) {
         setIsLoading(false);
       }
     })();
-  }, [currentSpreadIndex, getCurrentSpread, stories, colors]);
+  // Only depend on currentSpreadIndex, stories, and colors - not on the getCurrentSpread function
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSpreadIndex, stories, colors]);
 
   // Apply zoom changes
   useEffect(() => {
@@ -192,7 +198,9 @@ export function CanvasPanel({ onCanvasReady }: CanvasPanelProps = {}) {
     if (onCanvasReady && fabricCanvasRef.current) {
       onCanvasReady(handleCreateElement);
     }
-  }, [onCanvasReady, fabricCanvasRef.current]);
+  // Only run when onCanvasReady changes or component mounts
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onCanvasReady]);
 
   // Auto-save functionality
   useEffect(() => {
@@ -263,7 +271,9 @@ export function CanvasPanel({ onCanvasReady }: CanvasPanelProps = {}) {
       canvas.off('object:modified', handleTextChange);
       clearTimeout(saveTimeout);
     };
-  }, [fabricCanvasRef.current, uploadId, stories, fetcher]);
+  // Don't use fabricCanvasRef.current as dependency - it causes infinite loops
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadId, stories, fetcher]);
 
   // Auto-save transforms on object modifications
   useEffect(() => {
@@ -338,60 +348,50 @@ export function CanvasPanel({ onCanvasReady }: CanvasPanelProps = {}) {
       canvas.off('object:modified', handleObjectModified);
       clearTimeout(saveTimeout);
     };
-  }, [fabricCanvasRef.current, uploadId, currentSpreadIndex, fetcher]);
-
-  // Loading state
-  if (isLoading && !fabricCanvasRef.current) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-gray-700">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-          <p className="text-white text-sm">Initializing canvas...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-gray-700">
-        <div className="text-center max-w-md">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-            <svg
-              className="w-8 h-8 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </div>
-          <h3 className="text-white font-semibold mb-2">Canvas Error</h3>
-          <p className="text-gray-300 text-sm">{error}</p>
-        </div>
-      </div>
-    );
-  }
+  // Don't use fabricCanvasRef.current as dependency - it causes infinite loops
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadId, currentSpreadIndex, fetcher]);
 
   return (
     <div className="flex-1 relative bg-gray-700 overflow-hidden">
-      {/* Loading overlay during spread changes */}
-      {isLoading && (
-        <div className="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-10">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-2"></div>
-            <p className="text-white text-xs">Loading spread...</p>
+      {/* Error overlay */}
+      {error && (
+        <div className="absolute inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-20">
+          <div className="text-center max-w-md">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+              <svg
+                className="w-8 h-8 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </div>
+            <h3 className="text-white font-semibold mb-2">Canvas Error</h3>
+            <p className="text-gray-300 text-sm">{error}</p>
           </div>
         </div>
       )}
 
-      {/* Canvas container */}
+      {/* Loading overlay during initialization and spread changes */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-10">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-2"></div>
+            <p className="text-white text-xs">
+              {!fabricCanvasRef.current ? 'Initializing canvas...' : 'Loading spread...'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Canvas container - always rendered so ref can be initialized */}
       <div className="w-full h-full flex items-center justify-center p-8">
         <canvas ref={canvasRef} className="shadow-2xl" />
       </div>

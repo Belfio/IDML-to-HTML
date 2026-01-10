@@ -9,7 +9,7 @@ import type {
   PolygonElement,
 } from '../interfaces/spreadInterfaces';
 import { IDMLTextFrame, createTextFrameFromIDML } from './textFrame';
-import type { StoryData } from '../textEditor/storyParser';
+import type { StoryData } from '../textEditor/storyParser.server';
 import type { IDMLColor } from '../colors/colorManager';
 import {
   setupTransformTracking,

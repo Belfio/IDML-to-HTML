@@ -2,7 +2,7 @@ import type { ActionFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import path from 'path';
 import { saveStoryXML } from '~/lib/textEditor/storySerializer';
-import type { StoryData } from '~/lib/textEditor/storyParser';
+import type { StoryData } from '~/lib/textEditor/storyParser.server';
 
 /**
  * API endpoint to save story changes

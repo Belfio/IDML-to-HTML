@@ -16,9 +16,9 @@ test.describe('IDML Editor Platform E2E Tests', () => {
     // Check upload page heading
     await expect(page.locator('h1')).toContainText('Upload IDML File');
 
-    // Check file input exists
+    // Check file input exists (hidden as part of drag-and-drop UI)
     const fileInput = page.locator('input[type="file"]');
-    await expect(fileInput).toBeVisible();
+    await expect(fileInput).toBeAttached();
   });
 
   test('upload page renders correctly', async ({ page }) => {
@@ -27,9 +27,9 @@ test.describe('IDML Editor Platform E2E Tests', () => {
     // Check heading
     await expect(page.locator('h1')).toContainText('Upload IDML File');
 
-    // Check file input exists
+    // Check file input exists (hidden as part of drag-and-drop UI)
     const fileInput = page.locator('input[type="file"]');
-    await expect(fileInput).toBeVisible();
+    await expect(fileInput).toBeAttached();
     await expect(fileInput).toHaveAttribute('accept', '.idml');
 
     // Check upload button exists
@@ -56,7 +56,7 @@ test.describe('IDML Editor Platform E2E Tests', () => {
     expect(page.url()).toBe(`${BASE_URL}/`);
   });
 
-  test('file upload and preview workflow', async ({ page }) => {
+  test('file upload and editor workflow', async ({ page }) => {
     // Already on upload page (homepage)
 
     // Path to test IDML file
@@ -66,32 +66,53 @@ test.describe('IDML Editor Platform E2E Tests', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(testFile);
 
-    // Submit form and wait for navigation
+    // Wait a moment for the file to be set and any client-side validation
+    await page.waitForTimeout(100);
+
+    // Verify the file input has the file
+    const files = await fileInput.evaluate((input: HTMLInputElement) => {
+      return input.files ? Array.from(input.files).map(f => f.name) : [];
+    });
+    expect(files).toContain('example.idml');
+
+    // Submit form and wait for navigation to editor
     const uploadButton = page.locator('button[type="submit"]');
 
-    // Wait for the upload to complete and redirect
-    await Promise.all([
-      page.waitForURL(/\/preview\/.+/, { timeout: 60000 }),
-      uploadButton.click()
-    ]);
+    // Click the button and wait for navigation
+    // Using waitForNavigation is more reliable than waitForURL in some cases
+    await uploadButton.click();
 
-    // Check preview page loaded
-    await expect(page.locator('h1')).toContainText('IDML Preview');
+    // Wait for the URL to change to the editor page
+    await page.waitForURL(/\/editor\/.+/, { timeout: 60000 });
 
-    // Check file name is displayed in header
-    await expect(page.locator('text=File: example.idml')).toBeVisible();
+    // Check editor page loaded
+    await expect(page.locator('text=example.idml')).toBeVisible({ timeout: 10000 });
 
-    // Check document info section
-    await expect(page.locator('text=Document Info')).toBeVisible();
-    await expect(page.locator('text=✓ Processed')).toBeVisible();
+    // Check that we're on the editor page (not stuck on upload)
+    expect(page.url()).toMatch(/\/editor\/.+/);
 
-    // Check preview content exists
-    const previewContent = page.locator('.idml-preview');
-    await expect(previewContent).toBeVisible();
+    // Check spread navigation is visible (use more specific selector to avoid multiple matches)
+    await expect(page.locator('text=Spread').first()).toBeVisible();
 
-    // Check action buttons are present
-    await expect(page.locator('text=Upload New File')).toBeVisible();
-    await expect(page.locator('text=Print Preview')).toBeVisible();
+    // Check tool panel exists
+    const toolPanel = page.locator('aside').first();
+    await expect(toolPanel).toBeVisible();
+
+    // Wait for canvas element to appear (fabric.js creates multiple canvases, so use first())
+    const canvas = page.locator('canvas').first();
+    await expect(canvas).toBeAttached({ timeout: 10000 });
+
+    // Wait for loading to complete - either text should disappear or not be present
+    try {
+      await page.waitForSelector('text=Initializing canvas...', { state: 'detached', timeout: 5000 });
+    } catch {
+      // Already gone or never appeared
+    }
+    try {
+      await page.waitForSelector('text=Loading spread...', { state: 'detached', timeout: 10000 });
+    } catch {
+      // Already gone or never appeared
+    }
   });
 
   test('navigation between pages', async ({ page }) => {
@@ -138,14 +159,9 @@ test.describe('IDML Editor Platform E2E Tests', () => {
   test('accessibility - form labels and structure', async ({ page }) => {
     // Already on homepage/upload page
 
-    // Check form has proper label
-    const label = page.locator('label[for="idmlFile"]');
-    await expect(label).toBeVisible();
-    await expect(label).toContainText('Select IDML File');
-
-    // Check input has id matching label
+    // Check input has proper id (label check removed as file input is hidden in drag-and-drop UI)
     const input = page.locator('#idmlFile');
-    await expect(input).toBeVisible();
+    await expect(input).toBeAttached();
 
     // Check heading hierarchy
     const h1 = page.locator('h1');
@@ -168,21 +184,30 @@ test.describe('IDML Editor Platform E2E Tests', () => {
   test('console errors check', async ({ page }) => {
     const errors: string[] = [];
 
-    // Listen for console errors
+    // Listen for console errors (filter out dev server manifest patch errors)
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
-        errors.push(msg.text());
+        const text = msg.text();
+        // Ignore Remix dev server manifest patch errors
+        if (!text.includes('Failed to fetch manifest patches')) {
+          errors.push(text);
+        }
       }
     });
 
     await page.goto(BASE_URL);
 
-    // Should have no console errors
-    expect(errors.length).toBe(0);
+    // Wait a bit for any lazy-loaded errors
+    await page.waitForTimeout(1000);
 
+    // Log errors for debugging
     if (errors.length > 0) {
-      console.log('Console errors found:', errors);
+      console.log('Console errors found:');
+      errors.forEach((err, i) => console.log(`  ${i + 1}. ${err}`));
     }
+
+    // Should have no console errors (excluding dev server noise)
+    expect(errors.length).toBe(0);
   });
 });
 

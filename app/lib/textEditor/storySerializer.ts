@@ -1,5 +1,5 @@
 import * as xml2js from 'xml2js';
-import type { StoryData, ParagraphData, CharacterRangeData } from './storyParser';
+import type { StoryData, ParagraphData, CharacterRangeData } from './storyParser.server';
 
 /**
  * Story Serializer - Converts edited text back to Story XML
