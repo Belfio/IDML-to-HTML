@@ -95,6 +95,12 @@ export default function Preview() {
               >
                 Upload New File
               </Link>
+              <Link
+                to={`/editor/${data.uploadId}`}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-medium"
+              >
+                Open in Editor
+              </Link>
               <button
                 onClick={() => window.print()}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -133,6 +139,15 @@ export default function Preview() {
               <div className="mt-6 pt-4 border-t">
                 <h3 className="font-semibold text-gray-900 mb-2">Actions</h3>
                 <div className="space-y-2">
+                  <Link
+                    to={`/editor/${data.uploadId}`}
+                    className="w-full px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 font-medium flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit Document
+                  </Link>
                   <button className="w-full px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
                     View Raw Data
                   </button>

@@ -85,7 +85,7 @@ export async function action({ request }: ActionFunctionArgs) {
     await processIdml(filePath);
     console.log("✓ IDML processing complete");
 
-    const redirectUrl = `/preview/${uploadId}`;
+    const redirectUrl = `/editor/${uploadId}`;
     console.log("Redirecting to:", redirectUrl);
     console.log("=== INDEX ACTION COMPLETE ===");
     return redirect(redirectUrl);
@@ -280,7 +280,7 @@ export default function Index() {
         <ul className="list-disc list-inside text-sm text-blue-800 space-y-1">
           <li>Your IDML file will be uploaded to the server</li>
           <li>The file will be extracted and parsed</li>
-          <li>You'll be redirected to a preview page</li>
+          <li>You'll be redirected to the editor</li>
           <li>You can view and edit the content</li>
         </ul>
       </div>
