@@ -10,6 +10,7 @@ import type {
 } from '../interfaces/spreadInterfaces';
 import { IDMLTextFrame, createTextFrameFromIDML } from './textFrame';
 import type { StoryData } from '../textEditor/storyParser';
+import type { IDMLColor } from '../colors/colorManager';
 
 /**
  * FabricCanvas: Wrapper for Fabric.js canvas that handles IDML to Fabric conversion
@@ -45,6 +46,7 @@ export class FabricCanvas {
   private canvas: fabric.Canvas;
   private pointsToPixelsRatio = 0.75; // IDML points to pixels conversion
   private storiesMap: Map<string, StoryData> = new Map(); // Store loaded stories
+  private colorsMap: Map<string, IDMLColor> = new Map(); // Store loaded colors
 
   constructor(canvasElement: HTMLCanvasElement, options?: FabricCanvasOptions) {
     this.canvas = new fabric.Canvas(canvasElement, {
@@ -60,6 +62,28 @@ export class FabricCanvas {
    */
   setStories(stories: Map<string, StoryData>): void {
     this.storiesMap = stories;
+  }
+
+  /**
+   * Load colors for rendering
+   */
+  setColors(colors: IDMLColor[]): void {
+    this.colorsMap.clear();
+    colors.forEach(color => {
+      this.colorsMap.set(color.id, color);
+    });
+  }
+
+  /**
+   * Get RGB color from color ID
+   */
+  private getColorRGB(colorId?: string): string {
+    if (!colorId) return '#cccccc';
+    if (colorId === 'Color/Paper') return '#ffffff';
+    if (colorId === 'Color/Black') return '#000000';
+
+    const color = this.colorsMap.get(colorId);
+    return color?.rgb || '#cccccc';
   }
 
   /**
@@ -343,15 +367,19 @@ export class FabricCanvas {
     const attrs = rect.$;
     const transform = this.parseItemTransform(attrs.ItemTransform);
 
+    // Get fill and stroke colors if available
+    const fillColor = this.getColorRGB((attrs as any).FillColor);
+    const strokeColor = this.getColorRGB((attrs as any).StrokeColor);
+
     // Create rectangle
     const fabricRect = new fabric.Rect({
       left: transform.left,
       top: transform.top,
       width: 100, // Default size - should be calculated from PathGeometry
       height: 100,
-      fill: 'rgba(200, 200, 255, 0.3)', // Light blue placeholder
-      stroke: '#666666',
-      strokeWidth: 1,
+      fill: fillColor,
+      stroke: strokeColor,
+      strokeWidth: parseFloat((attrs as any).StrokeWeight || '1'),
       scaleX: transform.scaleX,
       scaleY: transform.scaleY,
       angle: transform.angle,
@@ -381,11 +409,14 @@ export class FabricCanvas {
     const attrs = line.$;
     const transform = this.parseItemTransform(attrs.ItemTransform);
 
+    // Get stroke color
+    const strokeColor = this.getColorRGB(attrs.StrokeColor);
+
     // Create line (default horizontal, will be transformed)
     const fabricLine = new fabric.Line([0, 0, 100, 0], {
       left: transform.left,
       top: transform.top,
-      stroke: attrs.StrokeColor || '#000000',
+      stroke: strokeColor,
       strokeWidth: parseFloat(attrs.StrokeWeight) || 1,
       scaleX: transform.scaleX,
       scaleY: transform.scaleY,
