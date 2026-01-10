@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useSubmit } from "@remix-run/react";
-import { useState, useRef, DragEvent } from "react";
+import { Form, useActionData, useSubmit, useNavigation } from "@remix-run/react";
+import { useState, useRef, useEffect, DragEvent } from "react";
 import { writeFile, mkdir } from "fs/promises";
 import { randomUUID } from "crypto";
 import processIdml from "~/lib/processIdml";
@@ -108,11 +108,15 @@ interface ActionData {
 export default function Index() {
   const actionData = useActionData<typeof action>();
   const submit = useSubmit();
+  const navigation = useNavigation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
+  const isUploading = navigation.state === 'submitting' || navigation.state === 'loading';
+
   console.log('[UPLOAD] Page rendered, actionData:', actionData);
+  console.log('[UPLOAD] Navigation state:', navigation.state);
 
   // Drag and drop handlers
   const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
@@ -284,11 +288,31 @@ export default function Index() {
 
           <button
             type="submit"
-            className="w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            disabled={isUploading}
+            className="w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Upload and Process
+            {isUploading ? (
+              <>
+                <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Processing...</span>
+              </>
+            ) : (
+              'Upload and Process'
+            )}
           </button>
         </Form>
+
+        {isUploading && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <div>
+                <p className="text-blue-800 font-medium">Processing your IDML file...</p>
+                <p className="text-blue-600 text-sm">Extracting and parsing document. This may take a moment.</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {actionData?.error && (
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -297,10 +321,10 @@ export default function Index() {
           </div>
         )}
 
-        {actionData?.success && (
+        {actionData?.success && !isUploading && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-700 font-medium">Success!</p>
-            <p className="text-green-600 text-sm">File uploaded and processed successfully.</p>
+            <p className="text-green-600 text-sm">File uploaded and processed successfully. Redirecting to editor...</p>
           </div>
         )}
       </div>
