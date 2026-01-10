@@ -166,18 +166,21 @@ export default function Index() {
 
       console.log('[UPLOAD] File validation passed');
 
-      // Update file input and submit
+      // Update file input and submit the form
       if (fileInputRef.current) {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         fileInputRef.current.files = dataTransfer.files;
         setSelectedFileName(file.name);
 
-        // Create FormData and submit
-        const formData = new FormData();
-        formData.append('idmlFile', file);
-        console.log('[UPLOAD] Submitting via drag-drop...');
-        submit(formData, { method: 'post', encType: 'multipart/form-data' });
+        console.log('[UPLOAD] Triggering form submit via drag-drop...');
+
+        // Trigger the form submit (this will handle redirect properly)
+        const form = fileInputRef.current.closest('form');
+        if (form) {
+          // Use requestSubmit to trigger form validation and submission
+          form.requestSubmit();
+        }
       }
     }
   };
