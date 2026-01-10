@@ -278,11 +278,15 @@ npm run typecheck
 - Parent-child transforms
 
 **Progress**:
+- [x] Add drag handlers for all canvas objects
+- [x] Add resize handlers with transform updates
+- [x] Create transform tracking system with IDML matrix composition
+- [x] Create API endpoint to save transforms
+- [x] Add visual feedback for modified objects (blue border flash)
+- [x] Implement auto-save for transform modifications
 - [ ] Build image uploader component
 - [ ] Create image upload API endpoint
 - [ ] Implement image replacement in Rectangle frames
-- [ ] Add drag handlers for all canvas objects
-- [ ] Add resize handlers with transform updates
 - [ ] Create element factory for new TextFrames
 - [ ] Create element factory for new Rectangles
 - [ ] Create element factory for new Lines

@@ -4,6 +4,7 @@ import { FabricCanvas } from '~/lib/canvas/fabricCanvas';
 import { IDMLTextFrame } from '~/lib/canvas/textFrame';
 import { updateStoryFromText, serializeStoryToXML } from '~/lib/textEditor/storySerializer';
 import { useFetcher } from '@remix-run/react';
+import { getObjectModificationInfo } from '~/lib/canvas/transformHandler';
 
 /**
  * CanvasPanel: Fabric.js canvas integration component
@@ -185,6 +186,81 @@ export function CanvasPanel() {
       clearTimeout(saveTimeout);
     };
   }, [fabricCanvasRef.current, uploadId, stories, fetcher]);
+
+  // Auto-save transforms on object modifications
+  useEffect(() => {
+    if (!fabricCanvasRef.current || !uploadId) return;
+
+    const canvas = fabricCanvasRef.current.getCanvas();
+    let saveTimeout: NodeJS.Timeout;
+
+    const handleObjectModified = (e: any) => {
+      const target = e.target;
+
+      // Skip text frames (they are handled by text save)
+      if (target instanceof IDMLTextFrame) return;
+
+      // Get modification info
+      const modInfo = getObjectModificationInfo(target);
+      if (!modInfo || !modInfo.modified) return;
+
+      // Debounce saves by 2 seconds
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        saveTransform(target, modInfo);
+      }, 2000);
+    };
+
+    const saveTransform = async (obj: any, modInfo: any) => {
+      try {
+        // Save via API
+        fetcher.submit(
+          {
+            uploadId,
+            spreadIndex: currentSpreadIndex.toString(),
+            objectId: modInfo.idmlId,
+            transform: modInfo.currentTransform,
+            objectType: modInfo.idmlType,
+          },
+          {
+            method: 'post',
+            action: '/api/save-transform',
+            encType: 'application/json',
+          }
+        );
+
+        setLastSaveTime(new Date());
+        console.log(`Auto-saved transform for ${modInfo.idmlType} ${modInfo.idmlId}`);
+
+        // Add visual feedback (blue border)
+        obj.set({
+          stroke: '#3b82f6',
+          strokeWidth: 2,
+          dirty: true,
+        });
+        canvas.renderAll();
+
+        // Remove feedback after 1 second
+        setTimeout(() => {
+          obj.set({
+            stroke: obj.data?.originalStroke || undefined,
+            strokeWidth: obj.data?.originalStrokeWidth || 0,
+            dirty: true,
+          });
+          canvas.renderAll();
+        }, 1000);
+      } catch (error) {
+        console.error('Transform save failed:', error);
+      }
+    };
+
+    canvas.on('object:modified', handleObjectModified);
+
+    return () => {
+      canvas.off('object:modified', handleObjectModified);
+      clearTimeout(saveTimeout);
+    };
+  }, [fabricCanvasRef.current, uploadId, currentSpreadIndex, fetcher]);
 
   // Loading state
   if (isLoading && !fabricCanvasRef.current) {
