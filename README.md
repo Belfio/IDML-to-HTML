@@ -293,8 +293,9 @@ npm run typecheck
 - [x] Integrate element creation with canvas
 - [x] Build image uploader utility module
 - [x] Create image upload API endpoint
+- [x] Implement group/ungroup operations
+- [x] Add keyboard shortcuts (Cmd+G, Cmd+Shift+G, Delete)
 - [ ] Implement image replacement in Rectangle frames (UI component)
-- [ ] Implement group/ungroup operations
 - [ ] Add snap-to-grid functionality
 - [ ] Test drag/resize with complex nested groups
 - [ ] Update E2E tests for image and layout editing

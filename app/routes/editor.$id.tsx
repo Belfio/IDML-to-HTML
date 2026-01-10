@@ -14,6 +14,7 @@ import { parseAllStories } from '~/lib/textEditor/storyParser';
 import type { StoryData } from '~/lib/textEditor/storyParser';
 import { ColorManager } from '~/lib/colors/colorManager';
 import type { IDMLColor } from '~/lib/colors/colorManager';
+import { groupSelectedObjects, ungroupSelectedGroup, hasMultipleSelection, isGroupSelected } from '~/lib/canvas/groupHandler';
 
 /**
  * Editor Route: Main IDML editor interface
@@ -222,6 +223,33 @@ export default function Editor() {
         }
       }
 
+      // Cmd/Ctrl + G: Group
+      if ((e.metaKey || e.ctrlKey) && e.key === 'g' && !e.shiftKey && canvasInstance) {
+        e.preventDefault();
+        if (hasMultipleSelection(canvasInstance)) {
+          groupSelectedObjects(canvasInstance);
+        }
+      }
+
+      // Cmd/Ctrl + Shift + G: Ungroup
+      if ((e.metaKey || e.ctrlKey) && e.key === 'g' && e.shiftKey && canvasInstance) {
+        e.preventDefault();
+        if (isGroupSelected(canvasInstance)) {
+          ungroupSelectedGroup(canvasInstance);
+        }
+      }
+
+      // Delete/Backspace: Delete selected object
+      if ((e.key === 'Delete' || e.key === 'Backspace') && canvasInstance) {
+        const activeObject = canvasInstance.getActiveObject();
+        if (activeObject && !e.metaKey && !e.ctrlKey) {
+          e.preventDefault();
+          canvasInstance.remove(activeObject);
+          canvasInstance.renderAll();
+          console.log('Deleted object:', activeObject.data?.idmlId);
+        }
+      }
+
       // Tool shortcuts
       if (!e.metaKey && !e.ctrlKey && !e.altKey) {
         switch (e.key) {
@@ -263,6 +291,7 @@ export default function Editor() {
       currentSpreadIndex,
       spreadCount,
       setCurrentSpreadIndex,
+      canvasInstance,
     ]
   );
 
