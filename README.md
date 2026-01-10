@@ -284,15 +284,17 @@ npm run typecheck
 - [x] Create API endpoint to save transforms
 - [x] Add visual feedback for modified objects (blue border flash)
 - [x] Implement auto-save for transform modifications
-- [ ] Build image uploader component
-- [ ] Create image upload API endpoint
-- [ ] Implement image replacement in Rectangle frames
-- [ ] Create element factory for new TextFrames
-- [ ] Create element factory for new Rectangles
-- [ ] Create element factory for new Lines
+- [x] Build element factory with unique ID generation
+- [x] Create element factory for new TextFrames
+- [x] Create element factory for new Rectangles
+- [x] Create element factory for new Lines
+- [x] Create element factory for Ellipses
+- [x] Build shape creation toolbar with keyboard shortcuts
+- [x] Integrate element creation with canvas
+- [x] Build image uploader utility module
+- [x] Create image upload API endpoint
+- [ ] Implement image replacement in Rectangle frames (UI component)
 - [ ] Implement group/ungroup operations
-- [ ] Add IDML ID generator with uniqueness checking
-- [ ] Build shape creation toolbar
 - [ ] Add snap-to-grid functionality
 - [ ] Test drag/resize with complex nested groups
 - [ ] Update E2E tests for image and layout editing
